@@ -1,0 +1,16 @@
+-*-text-*-
+
+Changes in Socket version 1.2:
+
+  - Adapted to Linux (in this case RH 5.2 with kernel 2.2.2), Solaris
+    2.6 / 7, and FreeBSD 2.2.7. Other platforms are not (explicitly)
+    supported by this release.
+
+  - Except for SIGCHLD no signals are handled specially; siglist.c
+    removed.
+
+  - Multiple -vv options increase verbosity.
+
+  - Needs an ISO C compiler.
+
+  - License changed to Berkeley-style.

@@ -1,0 +1,41 @@
+#!/bin/sh -e
+#
+# Things like this should *really* be written in Perl, but then you
+# wouldn't need the Socket program. But extracting the fields with sed
+# is really a pain. In Perl it looks like this:
+#
+# $ARGV[0] =~ q|^(http://)?([-a-zA-Z0-9.]+)(:([0-9]+))?(/(.*))?$|
+#   || die "$0: bad URL $ARGV[0]\n" ;
+# 
+# $host = $2 ;
+# $port = $4 eq "" ? 80 : $4 ;
+# $file1 = $5 ;			# $5 gets eaten by the next match
+# $file = $file1 =~ q|^/| ? $file1 : "/$file1" ;
+
+progname=`basename $0`
+
+prot=`echo "${1?URL missing}" | sed -n 's;^\([^:]*\):.*$;\1;p'`
+host=`echo "$1" | sed -n 's;^.*://\([^/]*\)/.*$;\1;p'`
+file=/`echo "$1" | sed -n 's;^.*://[^/]*/\(.*\)$;\1;p'`
+
+#echo prot=$prot
+#echo host=$host
+#echo file=$file
+
+if [ -z "$prot" ] ; then
+    echo $progname: Protocol name missing. Please check URL syntax. 1>&2
+    exit 1
+fi
+
+if [ -z "$host" ] ; then
+    echo $progname: Hostname missing. Please check URL syntax. 1>&2
+    exit 1
+fi
+
+if [ $prot: != http: ] ; then
+    echo $progname: Only HTTP retrieval supported. Please check URL syntax. 1>&2
+    exit 1
+fi
+
+echo "GET $file HTTP/1.0
+" | socket -c $host http

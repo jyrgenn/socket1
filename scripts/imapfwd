@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# I used this once to debug an IMAP session; I wrote it into the
+# inetd.conf instead of the imapd (which ran on the host picasso). If
+# you do a tail -f on the output files, you can get an idea what is
+# going on in the session.
+
+tee -a /tmp/.imapin | /usr/local/bin/socket picasso imap | tee -a /tmp/.imapout

@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# This is what I use regularly, because it makes it more convenient to
+# access other NICs than the original whois client.
+
+NIC=rs.internic.net
+verbose=false
+
+usage() {
+    cat 1>&2 <<\EOF
+usage: whois [ -h host ] identifier
+Whois servers:
+       InterNIC                               - rs.internic.net
+ [-A]  American Registry for Internet Numbers - whois.arin.net
+ [-R]  European IP Address Allocations        - whois.ripe.net
+ [-a]  Asia Pacific IP Address Allocations    - whois.apnic.net
+ [-M]  US Military                            - whois.nic.mil
+ [-G]  US Government                          - whois.nic.gov
+ [-g]  Germany                                - whois.nic.de
+EOF
+    exit 1
+}
+
+set -- `getopt h:ARaMGg "$@"`
+
+while : ; do
+    case "$1" in
+	-A) NIC=whois.arin.net ;;
+	-R) NIC=whois.ripe.net ;;
+	-a) NIC=whois.apnic.net ;;
+	-M) NIC=whois.nic.mil ;;
+	-G) NIC=whois.nic.gov ;;
+	-g) NIC=whois.nic.de ;;
+	-h) NIC=$2 ; shift ;;
+	--) shift ; break ;;
+	-?) usage ;;
+	-v*) verbose=true ; socketopts="$socketopts $1" ;;
+	-*) socketopts="$socketopts $1" ;;
+	*) break ;;
+    esac
+    shift
+done
+
+if [ $# != 1 ] ; then
+    usage
+fi
+
+[ $verbose = true ] && echo Contacting $NIC...
+echo $1 | socket $socketopts -c "$NIC" whois

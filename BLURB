@@ -1,0 +1,9 @@
+This is interim release 1.2 of the Socket(1) program.
+
+Socket(1) implements an interface to TCP sockets at shell level.
+Client and server sockets can be used from shell scripts or
+interactively. Socket can also run a program with stdin, stdout, and
+stderr connected to the socket connection. A number of sample shell
+scripts is included. Socket-1.2 has been tested on Linux (RH 5.2 with
+2.2.2 kernel), Solaris (2.6 and 7), and FreeBSD (2.2.7). It should be
+easy to port to similar platforms.
