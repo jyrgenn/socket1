@@ -53,7 +53,7 @@ int do_read_write(int from, int to) ;
 int do_write(char *buffer, int size, int to) ;
 char *so_release(void) ;
 void open_pipes(char *prog) ;
-void wait_for_children(void) ;
+void wait_for_children(int sig) ;
 void perror2(char *s) ;
 void add_crs(char *from, char *to, int *sizep) ;
 void strip_crs(char *from, char *to, int *sizep) ;
