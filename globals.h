@@ -41,6 +41,23 @@
 
 #define LLEN	100		/* buffer size fo perror2() */
 
+/* Names of environment variables for cild process */
+#define ENVNAME_OWNADDR  "SOCKET_LOCAL_ADDRESS"
+#define ENVNAME_OWNPORT  "SOCKET_LOCAL_PORT"
+#define ENVNAME_PEERADDR "SOCKET_PEER_ADDRESS"
+#define ENVNAME_PEERPORT "SOCKET_PEER_PORT"
+
+#ifdef MAX
+#undef MAX
+#endif
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MAX4(a, b, c, d) MAX(MAX(a, b), MAX(c, d))
+#define MAX_ENVNAME_LEN MAX4(sizeof(ENVNAME_OWNADDR),  \
+			     sizeof(ENVNAME_OWNPORT),  \
+			     sizeof(ENVNAME_PEERADDR), \
+			     sizeof(ENVNAME_PEERPORT))
+#define MAX_HOSTNAME_LEN 255	/* see RFC 1034 */
+
 int create_server_socket(int port, int queue_length) ;
 int create_client_socket(char **hostname, int port) ;
 int resolve_service(char *name_or_number, char *protocol, char **name) ;
