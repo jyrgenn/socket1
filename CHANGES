@@ -17,5 +17,5 @@ Changes in Socket version 1.2:
 
   - License changed to Berkeley-style.
 
-  - Moved from ShapeTools to CVS (and a new repository, so all source
-    version numbers seem quite fresh :-).
+  - Moved from ShapeTools to CVS (and a new repository -- that all
+    source version numbers are 1.2 is *really* coincidental!)
