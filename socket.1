@@ -117,8 +117,14 @@ The specified
 .I command
 is executed for each connection. Its standard input, standard output,
 and standard error channels are connected to the socket.
+The environment variables SOCKET_LOCAL_ADDRESS and SOCKET_LOCAL_PORT
+are set to the socket's local IP address and port number; the
+environment variables SOCKET_PEER_ADDRESS and SOCKET_PEER_PORT are
+correspondingly set to IP address and port number of the socket on
+the peer's side.
 .I Command
-can be any shell command since it is passed to \fC/bin/sh\fP.
+can be any shell command since it is passed to \fC/bin/sh\fP for
+execution.
 .TP
 .BR "\-q " (quit)
 The connection is closed when an end-of-file condition occurs on standard
