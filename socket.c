@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <netinet/in.h>
 #ifdef SEQUENT
 #include <strings.h>
 #else
@@ -57,6 +58,7 @@ int active_socket ;		/* socket with connection */
 int Reuseflag = 1 ;		/* set server socket SO_REUSEADDR */
 char *progname ;		/* name of the game */
 char *pipe_program = NULL ;	/* program to execute in two-way pipe */
+unsigned long bind_addr = INADDR_ANY ; /* address to listen on */
 
 void server(int port, char *service_name) ;
 void handle_server_connection(void) ;
@@ -70,6 +72,7 @@ int main(int argc, char *argv[])
     extern int optind ;		/* from getopt() */
     int port ;			/* port number for socket */
     char *service_name ;	/* name of service for port */
+    char *bind_name = 0 ;	/* name supplied to -a option */
 
     /* print version ID if requested */
     if (argv[1] && !strcmp(argv[1], "-version")) {
@@ -84,8 +87,11 @@ int main(int argc, char *argv[])
     }
 
     /* parse options */
-    while ((opt = getopt(argc, argv, "bcflp:qrRsvw?")) != -1) {
+    while ((opt = getopt(argc, argv, "a:bcflp:qrRsvw?")) != -1) {
 	switch (opt) {
+	  case 'a':
+	    bind_name = optarg ;
+	    break ;
 	  case 'f':
 	    forkflag = 1 ;
 	    break ;
@@ -158,6 +164,14 @@ int main(int argc, char *argv[])
     if (port < 0) {
 	fprintf(stderr, "%s: unknown service\n", progname) ;
 	exit(5) ;
+    }
+
+    if (bind_name) {
+	bind_addr = resolve_name(bind_name) ;
+	if (bind_addr == INADDR_NONE) {
+	    perror2("can't resolve bind address") ;
+	    exit(2) ;
+	}
     }
 
     /* and go */

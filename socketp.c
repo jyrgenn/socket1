@@ -61,7 +61,7 @@ int create_server_socket(int port, int queue_length)
 
     memset((char *) &sa, 0, sizeof(sa)) ;
     sa.sin_family = AF_INET ;
-    sa.sin_addr.s_addr = htonl(INADDR_ANY) ;
+    sa.sin_addr.s_addr = htonl(bind_addr) ;
     sa.sin_port = htons(port) ;
 
     if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
@@ -78,7 +78,7 @@ int create_server_socket(int port, int queue_length)
 /* create a client socket connected to PORT on HOSTNAME */
 int create_client_socket(char **hostname, int port)
 {
-    struct sockaddr_in sa ;
+    struct sockaddr_in sa, local_sa ;
     struct hostent *hp ;
     int s ;
     long addr ;
@@ -109,6 +109,15 @@ int create_client_socket(char **hostname, int port)
 
     if ((s = socket(sa.sin_family, SOCK_STREAM, 0)) < 0) { /* get socket */
 	return -1 ;
+    }
+    if (bind_addr != INADDR_ANY) {
+	memset((char *) &local_sa, 0, sizeof(local_sa)) ;
+	local_sa.sin_family = AF_INET ;
+	local_sa.sin_addr.s_addr = htonl(bind_addr) ;
+
+	if (bind(s, (struct sockaddr *) &local_sa, sizeof(local_sa)) < 0) {
+	    return -1 ;
+	}
     }
     if (verboseflag >= 2) {
 	fprintf(stderr, "trying... ") ;
@@ -160,6 +169,45 @@ char *resolve_ipaddr(struct in_addr *ip_addr)
     he = gethostbyaddr((const char *) &ip_addr->s_addr,
 		       sizeof(ip_addr->s_addr), AF_INET) ;
     return he ? he->h_name : inet_ntoa(*ip_addr) ;
+}
+
+char *dotted_addr(unsigned long addr)
+{
+    static char dotted[sizeof("xxx.xxx.xxx.xxx")] ;
+
+    sprintf(dotted, "%ld.%ld.%ld.%ld",
+	    (addr >> 24) & 0xff,
+	    (addr >> 16) & 0xff,
+	    (addr >>  8) & 0xff,
+	    addr         & 0xff) ;
+    return dotted ;
+}
+
+/* resolve IP address for string (decimal dotted or hostname)
+ * return address or INADDR_NONE if invalid
+ */
+unsigned long resolve_name(char *address_or_name)
+{
+    unsigned long ret_addr = INADDR_NONE ;
+    unsigned long addr ;
+    struct hostent *hp ;
+
+    if ((addr = inet_addr(address_or_name)) != INADDR_NONE) {
+	/* is Internet addr in octet notation */
+	ret_addr = addr ;
+    } else {
+	/* do we know the host's address? */
+	if (verboseflag >= 2) {
+	    fprintf(stderr, "resolving %s... ", address_or_name) ;
+	}
+	if ((hp = gethostbyname(address_or_name)) != NULL) {
+	    memcpy(&ret_addr, hp->h_addr, sizeof(unsigned long)) ;
+	    if (verboseflag >= 2) {
+		fprintf(stderr, "%s\n", dotted_addr(htonl(ret_addr))) ;
+	    }
+	}
+    }
+    return htonl(ret_addr) ;
 }
 
 /* EOF */

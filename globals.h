@@ -47,6 +47,7 @@ int resolve_service(char *name_or_number, char *protocol, char **name) ;
 /* return host name or IP address string of ip_addr.
  */
 char *resolve_ipaddr(struct in_addr *ip_addr) ;
+unsigned long resolve_name(char *address_or_name) ;
 void catchsig(int sig) ;
 void usage(void) ;
 int do_read_write(int from, int to) ;
@@ -62,7 +63,7 @@ void init_sigchld(void) ;
 void do_io(void) ;
 void initialize_siglist(void) ;
 int is_number(char *s) ;
-
+char *dotted_addr(unsigned long addr) ;
 
 /* global variables */
 extern int serverflag ;
@@ -75,6 +76,7 @@ extern int quitflag ;
 extern int crlfflag ;
 extern int active_socket ;
 extern char *progname ;
+extern unsigned long bind_addr ;
 #ifndef HAS_SYS_ERRLIST
 extern char *sys_errlist[] ;
 #endif
