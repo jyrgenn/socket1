@@ -1,0 +1,16 @@
+#!/bin/sh
+
+WEBSTERHOST=webster.cs.tu-berlin.de
+
+: ${1?"usage: `basename $0` word"}
+
+[ "$1" = -n ] && WPAGER=cat
+(if [ "$1" = -t ] ; then 
+    echo INDEX thesaurus
+    shift
+ fi
+ echo "DEFINE $*
+QUIT") | 
+socket -c $WEBSTERHOST 2627 |
+tr -d '\200' |
+${WPAGER-${PAGER-more}}

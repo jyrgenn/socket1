@@ -1,0 +1,14 @@
+-*- text -*-
+
+To install Socket-1.2, the Makefile needs some editing. Instructions
+are included near the beginning of the Makefile. Edit as necessary and
+type "make install". This builds the program and installs the
+executable as /usr/local/bin/socket and the manual page as
+/usr/local/man/man1/socket.1.
+
+Socket relies on some Berkeleyisms and POSIXisms in signal, process,
+and IO handling, so porting it to (other) non-BSD-derived platforms
+may be difficult. I am interested in any changes you make to port the
+program to a new platform. Please send them back to me so I can merge
+them into a later release.
+
