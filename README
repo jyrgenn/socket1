@@ -1,6 +1,11 @@
 Hey Emacs, this is -*- text -*-.
 
-README for Socket-1.3.
+
+README for Socket-1.3pre1
+
+Known bugs:
+  - putenv() needs strdup() with Solaris.
+  - Does not compile with gcc on Solaris.
 
 Version 1.3 features mainly an option to suppress reverse lookups
 (-n), an option to bind the socket to a specific local address (-a),
