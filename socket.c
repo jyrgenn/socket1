@@ -218,7 +218,7 @@ void server(int port, char *service_name)
 		    break ;
 		  default:
 		    close(active_socket) ;
-		    wait_for_children() ;
+		    wait_for_children(0) ;
 		}
 	    } else {
 		handle_server_connection() ;
@@ -240,7 +240,7 @@ void handle_server_connection(void)
     close(active_socket) ;
     if (pipe_program) {
 	/* remove zombies */
-	wait_for_children() ;
+	wait_for_children(0) ;
     }
 }
 
