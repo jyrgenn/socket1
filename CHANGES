@@ -2,6 +2,8 @@
 
 Changes in Socket version 1.3:
 
+  - Change of author e-mail address
+
   - -n option for not doing reverse lookups
 
   - -a bind-address option to bind the socket to a specific local IP

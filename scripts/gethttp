@@ -1,16 +1,19 @@
 #!/bin/sh -e
 #
-# Things like this should *really* be written in Perl, but then you
-# wouldn't need the Socket program. But extracting the fields with sed
-# is really a pain. In Perl it looks like this:
+# Extracting the fields with sed is really a pain. In Perl it looks
+# like this:
 #
-# $ARGV[0] =~ q|^(http://)?([-a-zA-Z0-9.]+)(:([0-9]+))?(/(.*))?$|
-#   || die "$0: bad URL $ARGV[0]\n" ;
-# 
-# $host = $2 ;
-# $port = $4 eq "" ? 80 : $4 ;
-# $file1 = $5 ;			# $5 gets eaten by the next match
-# $file = $file1 =~ q|^/| ? $file1 : "/$file1" ;
+# if ($ARGV[0] !~ q{^(([^:/?\#]+)://)?([^/?\#:]*)(:([0-9]+))?(/.*)?}) {
+#     die "$0: bad URL $ARGV[0]\n" ;
+# }
+#
+# $scheme = $2 || "http" ;
+# $host = $3 ;
+# $port = $5 || 80 ;
+# $path = $6 || "/" ;
+#
+# But then you wouldn't need the Socket program. ;-)
+
 
 progname=`basename $0`
 
