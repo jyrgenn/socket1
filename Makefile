@@ -38,7 +38,7 @@ INSTALLBINMODE = 755
 INSTALLMANPATH = $(INSTALLBASE)/man
 INSTALLMANMODE = 444
 GCCOPTS = -Wall -Wstrict-prototypes -ansi -pedantic
-CC = gcc
+CC = cc
 CFLAGS  = $(SWITCHES) -g $(GCCOPTS)
 LDFLAGS = $(SWITCHES) # -s
 
@@ -46,12 +46,13 @@ LDFLAGS = $(SWITCHES) # -s
 ### system:
 
 ### 4.4 BSD (tested on FreeBSD, but probably works for other BSDs)
-SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST
+SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST $(GCCOPTS)
 
 ### Linux (Kernel 2.2.13, SuSE 6.2)
-SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST -D_GNU_SOURCE
+# SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
+#            -D_GNU_SOURCE $(GCCOPTS)
 
-### Solaris 2.6 and 7 with gcc
+### Solaris 2.6 and 7
 #SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
 #           -Dsys_siglist=_sys_siglist
 #SYSLIBS = -lnsl -lsocket
