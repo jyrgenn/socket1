@@ -43,9 +43,7 @@
 /*
  * create a server socket on PORT accepting QUEUE_LENGTH connections
  */
-int create_server_socket(port, queue_length)
-int port ;
-int queue_length ;
+int create_server_socket(int port, int queue_length)
 {
     struct sockaddr_in sa ;
     int s ;
@@ -69,7 +67,7 @@ int queue_length ;
     if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
 	return -1 ;
     }
-    if (listen(s, 1) < 0) {
+    if (listen(s, queue_length) < 0) {
 	return -1 ;
     }
 
@@ -78,9 +76,7 @@ int queue_length ;
 
 
 /* create a client socket connected to PORT on HOSTNAME */
-int create_client_socket(hostname, port)
-char **hostname ;
-int port ;
+int create_client_socket(char **hostname, int port)
 {
     struct sockaddr_in sa ;
     struct hostent *hp ;
@@ -127,10 +123,7 @@ int port ;
 /* return the port number for service NAME_OR_NUMBER. If NAME is non-null,
  * the name is the service is written there.
  */
-int resolve_service(name_or_number, protocol, name)
-char *name_or_number ;
-char *protocol ;
-char **name ;
+int resolve_service(char *name_or_number, char *protocol, char **name)
 {
     struct servent *servent ;
     int port ;
@@ -138,7 +131,7 @@ char **name ;
     if (is_number(name_or_number)) {
 	port = atoi(name_or_number) ;
 	if (name != NULL) {
-	    servent = getservbyport(htons(port), "tcp") ;
+	    servent = getservbyport(htons(port), protocol) ;
 	    if (servent != NULL) {
 		*name = servent->s_name ;
 	    } else {
@@ -147,7 +140,7 @@ char **name ;
 	}
 	return port ;
     } else {
-	servent = getservbyname(name_or_number, "tcp") ;
+	servent = getservbyname(name_or_number, protocol) ;
 	if (servent == NULL) {
 	    return -1 ;
 	}
