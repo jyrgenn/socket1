@@ -1,4 +1,4 @@
-/* This file os part of Socket-1.2.
+/* This file os part of Socket-1.2p1.
  */
 
 /*-
