@@ -48,6 +48,10 @@ LDFLAGS = $(SWITCHES) # -s
 ### 4.4 BSD (tested on FreeBSD, but probably works for other BSDs)
 SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST $(GCCOPTS)
 
+### Darwin (MacOS X) version 5.3
+#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
+#           -DHAS_NO_SOCKLEN_T -Wall
+
 ### Linux (Kernel 2.2.13, SuSE 6.2)
 #SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
 #           -D_GNU_SOURCE $(GCCOPTS)
