@@ -104,6 +104,7 @@ int do_write(char *buffer, int size, int to)
 	    return -1 ;
 	}
 	size -= written ;
+	buffer += written ;
     }
     return 1 ;
 }
