@@ -1,4 +1,4 @@
-# Makefile for Socket-1.2
+# Makefile for Socket-1.3
 #
 # Copyright (c) 1992, 1999 Juergen Nickelsen <jnickelsen@acm.org>
 # All rights reserved.
@@ -48,8 +48,8 @@ LDFLAGS = $(SWITCHES) # -s
 ### 4.4 BSD (tested on FreeBSD, but probably works for other BSDs)
 SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST
 
-### Linux
-#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST
+### Linux (Kernel 2.2.13, SuSE 6.2)
+SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST -D_GNU_SOURCE
 
 ### Solaris 2.6 and 7 with gcc
 #SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
