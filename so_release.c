@@ -31,7 +31,7 @@
 char *so_release (void)
 {
     static char release[] =
-	"Socket-1.2 (1999-08-06 by jnickelsen@acm.org)";
+	"Socket-1.2p1 (1999-09-19 by jnickelsen@acm.org)";
     
     return release ;
 }
