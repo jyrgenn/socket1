@@ -78,7 +78,7 @@ int is_number(char *s)
 /* Set up SIGCHLD handling. */
 void init_sigchld(void)
 {
-#ifdef HAS_POSIX_SIGS
+#ifndef HAS_NO_POSIX_SIGS
     struct sigaction wait_act ;
     sigset_t sigset ;
 
@@ -87,25 +87,25 @@ void init_sigchld(void)
     wait_act.sa_mask = sigset ;
     wait_act.sa_flags = 0 ;
     
-#else
+#else  /* HAS_NO_POSIX_SIGS */
 #ifdef SIG_SETMASK		/* only with BSD signals */
     static struct sigvec wait_vec = { wait_for_children, ~0, 0 } ;
-#endif
-#endif
+#endif /* SIG_SETMASK */
+#endif /* else HAS_NO_POSIX_SIGS */
 
 #if !defined (SIGCHLD) && defined (SIGCLD)
 #define SIGCHLD SIGCLD
 #endif
 #ifdef SIGCHLD
-#ifdef HAS_POSIX_SIGS
+#ifndef HAS_NO_POSIX_SIGS
     sigaction(SIGCHLD, &wait_act, 0) ;
-#else  /* HAS_POSIX_SIGS */
+#else  /* HAS_NO_POSIX_SIGS */
 #ifdef SIG_SETMASK
     sigvec(SIGCHLD, &wait_vec, NULL) ;
 #else  /* SIG_SETMASK */
     signal(SIGCHLD, wait_for_children) ;
 #endif /* SIG_SETMASK */
-#endif /* HAS_POSIX_SIGS */
+#endif /* else HAS_NO_POSIX_SIGS */
 #endif /* SIGCHLD */
 }
 

@@ -107,11 +107,11 @@ extern int noreverseflag ;
 extern int active_socket ;
 extern char *progname ;
 extern uint32_t bind_addr ;
-#ifndef HAS_SYS_ERRLIST
+#ifdef HAS_NO_SYS_ERRLIST
 extern char *sys_errlist[] ;
-#endif
-#ifndef HAS_SYS_SIGLIST
+#endif /* HAS_NO_SYS_ERRLIST */
+#ifdef HAS_NO_SYS_SIGLIST
 extern char *sys_siglist[] ;
-#endif
+#endif /* HAS_NO_SYS_SIGLIST */
 
 /* EOF */
