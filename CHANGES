@@ -11,6 +11,11 @@ Changes in Socket version 1.2:
 
   - Multiple -vv options increase verbosity.
 
-  - Needs an ISO C compiler.
+  - Sets SO_REUSEADDR unless -R option is specified.
+
+  - Needs an ISO C compiler (and I hope it is not GCC dependent).
 
   - License changed to Berkeley-style.
+
+  - Moved from ShapeTools to CVS (and a new repository, so all source
+    version numbers seem quite fresh :-).
