@@ -34,7 +34,7 @@ socket \- create tcp socket and connect to stdin/out
 .SH SYNOPSIS
 .B socket
 [
-.B \-bcfqrvvvw
+.B \-bcfnqrvvvw
 ]
 [
 .B \-a
@@ -48,7 +48,7 @@ socket \- create tcp socket and connect to stdin/out
 .br
 .B socket
 [
-.B \-bcfqrRvvvw
+.B \-bcfnqrRvvvw
 ]
 [
 .B \-a
@@ -108,6 +108,9 @@ forked to handle the connection in background.
 .BR \-s )
 After a connection has been closed,
 another connection is accepted.
+.TP 
+.BR "\-n" (no reverse lookup)
+Don't do reverse lookup of peer addresses.
 .TP
 .BR "\-p " (program)
 The specified 

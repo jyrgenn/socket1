@@ -74,6 +74,7 @@ extern int Reuseflag ;
 extern int writeonlyflag ;
 extern int quitflag ;
 extern int crlfflag ;
+extern int noreverseflag ;
 extern int active_socket ;
 extern char *progname ;
 extern unsigned long bind_addr ;
