@@ -37,6 +37,8 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
 #ifdef ISC
 #define WNOHANG 1
 #else
@@ -49,7 +51,7 @@
 void usage(void)
 {
     static char ustring[] =
-	"Usage: %s [-bclqrRvvw] [-p prog] [-s | host] port\n" ;
+	"Usage: %s [-bclnqrRvvw] [-a bind-address] [-p prog] [-s | host] port\n" ;
 
     fprintf(stderr, ustring, progname) ;
 }
@@ -111,8 +113,44 @@ void init_sigchld(void)
  * with prog's stdin. */
 void open_pipes(char *prog)
 {
+    char envbuf[MAX_ENVNAME_LEN + 1 + MAX_HOSTNAME_LEN + 1] ;
     int from_cld[2] ;		/* from child process */
     int to_cld[2] ;		/* to child process */
+    struct sockaddr_in sa ;
+    socklen_t addrlen ;
+
+    /* set environment variables for child process for peer and
+     * local address and port */
+    addrlen = sizeof(sa) ;
+    if (getpeername(active_socket, (struct sockaddr *) &sa, &addrlen) < 0) {
+	perror2("getpeername") ; /* should not happen */
+	putenv(ENVNAME_PEERADDR "=unknown") ;
+	putenv(ENVNAME_PEERPORT "=unknown") ;
+    } else {
+	strncpy(envbuf, ENVNAME_PEERADDR, MAX_ENVNAME_LEN) ;
+	strcat(envbuf, "=") ;
+	strncat(envbuf, resolve_ipaddr(&sa.sin_addr), MAX_HOSTNAME_LEN) ;
+	putenv(envbuf) ;
+	strncpy(envbuf, ENVNAME_PEERPORT, MAX_ENVNAME_LEN) ;
+	strcat(envbuf, "=") ;
+	sprintf(envbuf + strlen(envbuf), "%d", ntohs(sa.sin_port)) ;
+	putenv(envbuf) ;
+    }
+    addrlen = sizeof(sa) ;
+    if (getsockname(active_socket, (struct sockaddr *) &sa, &addrlen) < 0) {
+	perror2("getsockname") ; /* should not happen */
+	putenv(ENVNAME_OWNADDR "=unknown") ;
+	putenv(ENVNAME_OWNPORT "=unknown") ;
+    } else {
+	strncpy(envbuf, ENVNAME_OWNADDR, MAX_ENVNAME_LEN) ;
+	strcat(envbuf, "=") ;
+	strncat(envbuf, resolve_ipaddr(&sa.sin_addr), MAX_HOSTNAME_LEN) ;
+	putenv(envbuf) ;
+	strncpy(envbuf, ENVNAME_OWNPORT, MAX_ENVNAME_LEN) ;
+	strcat(envbuf, "=") ;
+	sprintf(envbuf + strlen(envbuf), "%d", ntohs(sa.sin_port)) ;
+	putenv(envbuf) ;
+    }
 
     /* create pipes */
     if (pipe(from_cld) == -1) {
