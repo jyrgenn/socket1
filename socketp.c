@@ -165,10 +165,22 @@ int resolve_service(char *name_or_number, char *protocol, char **name)
 char *resolve_ipaddr(struct in_addr *ip_addr)
 {
     struct hostent *he ;
+    char *result ;
 
-    he = gethostbyaddr((const char *) &ip_addr->s_addr,
-		       sizeof(ip_addr->s_addr), AF_INET) ;
-    return he ? he->h_name : inet_ntoa(*ip_addr) ;
+    if (noreverseflag) {
+	result = inet_ntoa(*ip_addr) ;
+    } else {
+	he = gethostbyaddr((const char *) &ip_addr->s_addr,
+			   sizeof(ip_addr->s_addr), AF_INET) ;
+	result = he ? he->h_name : inet_ntoa(*ip_addr) ;
+    }
+    result = strdup(result) ;
+    if (result == NULL) {
+	errno = ENOMEM ;
+	perror2("strdup") ;
+	exit(2) ;
+    }
+    return result ;
 }
 
 char *dotted_addr(unsigned long addr)

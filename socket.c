@@ -54,6 +54,7 @@ int writeonlyflag = 0 ;		/* only write to socket */
 int quitflag = 0 ;		/* quit connection on EOF */
 int crlfflag = 0 ;		/* socket expects and delivers CRLF */
 int backgflag = 0 ;		/* put yourself in background */
+int noreverseflag ;		/* don't do reverse lookup of peer addresses */
 int active_socket ;		/* socket with connection */
 int Reuseflag = 1 ;		/* set server socket SO_REUSEADDR */
 char *progname ;		/* name of the game */
@@ -87,8 +88,11 @@ int main(int argc, char *argv[])
     }
 
     /* parse options */
-    while ((opt = getopt(argc, argv, "a:bcflp:qrRsvw?")) != -1) {
+    while ((opt = getopt(argc, argv, "a:bcflnp:qrRsvw?")) != -1) {
 	switch (opt) {
+	  case 'n':
+	    noreverseflag = 1 ;
+	    break ;
 	  case 'a':
 	    bind_name = optarg ;
 	    break ;
@@ -189,7 +193,8 @@ int main(int argc, char *argv[])
 
 void server(int port, char *service_name)
 {
-    int socket_handle, alen ;
+    int socket_handle ;
+    socklen_t alen ;
 
     /* allocate server socket */
     socket_handle = create_server_socket(port, 1) ;
@@ -272,7 +277,7 @@ void client(char *host, int port, char *service_name)
     }
     if (verboseflag) {
 	struct sockaddr_in peer ;
-	int addrlen = sizeof(peer) ;
+	socklen_t addrlen = sizeof(peer) ;
 
 	if (getpeername(active_socket,
 			(struct sockaddr *) &peer, &addrlen) < 0) {
