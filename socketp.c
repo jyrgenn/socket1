@@ -81,7 +81,7 @@ int create_client_socket(char **hostname, int port)
     struct sockaddr_in sa, local_sa ;
     struct hostent *hp ;
     int s ;
-    long addr ;
+    uint32_t addr ;
 
 
     memset(&sa, 0, sizeof(sa)) ;
@@ -175,11 +175,11 @@ char *resolve_ipaddr(struct in_addr *ip_addr)
     }
 }
 
-char *dotted_addr(unsigned long addr)
+char *dotted_addr(uint32_t addr)
 {
     static char dotted[sizeof("xxx.xxx.xxx.xxx")] ;
 
-    sprintf(dotted, "%ld.%ld.%ld.%ld",
+    sprintf(dotted, "%d.%d.%d.%d",
 	    (addr >> 24) & 0xff,
 	    (addr >> 16) & 0xff,
 	    (addr >>  8) & 0xff,
@@ -190,10 +190,10 @@ char *dotted_addr(unsigned long addr)
 /* resolve IP address for string (decimal dotted or hostname)
  * return address or INADDR_NONE if invalid
  */
-unsigned long resolve_name(char *address_or_name)
+uint32_t resolve_name(char *address_or_name)
 {
-    unsigned long ret_addr = INADDR_NONE ;
-    unsigned long addr ;
+    uint32_t ret_addr = INADDR_NONE ;
+    uint32_t addr ;
     struct hostent *hp ;
 
     if ((addr = inet_addr(address_or_name)) != INADDR_NONE) {
@@ -205,7 +205,7 @@ unsigned long resolve_name(char *address_or_name)
 	    fprintf(stderr, "resolving %s... ", address_or_name) ;
 	}
 	if ((hp = gethostbyname(address_or_name)) != NULL) {
-	    memcpy(&ret_addr, hp->h_addr, sizeof(unsigned long)) ;
+	    memcpy(&ret_addr, hp->h_addr, sizeof(uint32_t)) ;
 	    if (verboseflag >= 2) {
 		fprintf(stderr, "%s\n", dotted_addr(htonl(ret_addr))) ;
 	    }
