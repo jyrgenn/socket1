@@ -122,10 +122,12 @@ int create_client_socket(char **hostname, int port)
     if (verboseflag >= 2) {
 	fprintf(stderr, "trying... ") ;
     }
+    alarm(timeout) ;
     if (connect(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) { /* connect */
 	close(s) ;
 	return -1 ;
     }
+    alarm(0) ;
     return s ;
 }
 

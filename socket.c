@@ -57,9 +57,13 @@ int backgflag = 0 ;		/* put yourself in background */
 int noreverseflag ;		/* don't do reverse lookup of peer addresses */
 int active_socket ;		/* socket with connection */
 int Reuseflag = 1 ;		/* set server socket SO_REUSEADDR */
+unsigned int timeout = 0 ;	/* timeout in seconds */
 char *progname ;		/* name of the game */
 char *pipe_program = NULL ;	/* program to execute in two-way pipe */
 uint32_t bind_addr = INADDR_ANY;/* address to listen on */
+
+jmp_buf setjmp_env ;		/* buffer for return via longjmp() */
+int alarmsig_occured = 0 ;	/* non-zero after alarm signal */
 
 void server(int port, char *service_name) ;
 void handle_server_connection(void) ;
@@ -88,7 +92,7 @@ int main(int argc, char *argv[])
     }
 
     /* parse options */
-    while ((opt = getopt(argc, argv, "a:bcflnp:qrRsvw?")) != -1) {
+    while ((opt = getopt(argc, argv, "a:bcflnp:qrRsvwT:?")) != -1) {
 	switch (opt) {
 	  case 'n':
 	    noreverseflag = 1 ;
@@ -129,6 +133,9 @@ int main(int argc, char *argv[])
 	  case 'b':
 	    backgflag = 1 ;
 	    break ;
+	  case 'T':
+	    timeout = atoi(optarg) ;
+	    break ;
 	  default:
 	    error++ ;
 	}
@@ -160,7 +167,7 @@ int main(int argc, char *argv[])
     }
  
     /* set up signal handling */
-    init_sigchld() ;
+    init_sighandlers() ;
 
     /* get port number */
     port = resolve_service(argv[optind + 1 - serverflag],
@@ -213,14 +220,16 @@ void server(int port, char *service_name)
     /* server loop */
     do {
 	struct sockaddr_in sa ;
-	    
+
 	alen = sizeof(sa) ;
 
 	/* accept a connection */
 	if ((active_socket = accept(socket_handle,
 			  (struct sockaddr *) &sa,
 			  &alen)) == -1) {
-	    perror2("accept") ;
+	    if (errno != EINTR) {
+		perror2("accept") ;
+	    }
 	} else {
 	    /* if verbose, get name of peer and give message */
 	    if (verboseflag) {
@@ -253,8 +262,11 @@ void handle_server_connection(void)
     if (pipe_program != NULL) {
 	open_pipes(pipe_program) ;
     }
-    /* enter IO loop */
-    do_io() ;
+    /* enter IO loop after establishing return point */
+    if (!setjmp(setjmp_env)) {
+	alarmsig_occured = 0 ;
+	do_io() ;
+    }
     /* connection is closed now */
     close(active_socket) ;
     if (pipe_program) {

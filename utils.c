@@ -75,39 +75,52 @@ int is_number(char *s)
     return 1 ;
 }
 
-/* Set up SIGCHLD handling. */
-void init_sigchld(void)
+
+void handle_sigalrm(int signal)
+{
+    alarmsig_occured = 1 ;
+    fprintf(stderr, "read timeout, closing connection\n") ;
+    if (!serverflag || forkflag) {
+	exit(0) ;
+    }
+}
+
+
+/* Set up signal handling. */
+void init_sighandler(int sig, void (*handler)(int))
 {
 #ifndef HAS_NO_POSIX_SIGS
-    struct sigaction wait_act ;
+    struct sigaction handler_act ;
     sigset_t sigset ;
 
     sigfillset(&sigset) ;
-    wait_act.sa_handler = wait_for_children ;
-    wait_act.sa_mask = sigset ;
-    wait_act.sa_flags = 0 ;
+    handler_act.sa_handler = handler ;
+    handler_act.sa_mask = sigset ;
+    handler_act.sa_flags = 0 ;
     
 #else  /* HAS_NO_POSIX_SIGS */
 #ifdef SIG_SETMASK		/* only with BSD signals */
-    static struct sigvec wait_vec = { wait_for_children, ~0, 0 } ;
+    static struct sigvec handler_vec = { handler, ~0, 0 } ;
 #endif /* SIG_SETMASK */
 #endif /* else HAS_NO_POSIX_SIGS */
 
-#if !defined (SIGCHLD) && defined (SIGCLD)
-#define SIGCHLD SIGCLD
-#endif
-#ifdef SIGCHLD
 #ifndef HAS_NO_POSIX_SIGS
-    sigaction(SIGCHLD, &wait_act, 0) ;
+    sigaction(sig, &handler_act, 0) ;
 #else  /* HAS_NO_POSIX_SIGS */
 #ifdef SIG_SETMASK
-    sigvec(SIGCHLD, &wait_vec, NULL) ;
+    sigvec(sig, &handler_vec, NULL) ;
 #else  /* SIG_SETMASK */
-    signal(SIGCHLD, wait_for_children) ;
+    signal(sig, handler) ;
 #endif /* SIG_SETMASK */
 #endif /* else HAS_NO_POSIX_SIGS */
-#endif /* SIGCHLD */
 }
+
+void init_sighandlers(void)
+{
+    init_sighandler(SIGCHLD, wait_for_children) ;
+    init_sighandler(SIGALRM, handle_sigalrm) ;
+}
+
 
 /* Put a variable into the environment. putenv() makes a copy of the
    string on some platforms (namely FreeBSD and Linux), but not on
