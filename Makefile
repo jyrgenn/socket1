@@ -1,6 +1,6 @@
 # Makefile for Socket-1.3.
 #
-# Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <jnickelsen@acm.org>
+# Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <ni@jnickelsen.de>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -49,13 +49,21 @@ LDFLAGS = $(SWITCHES) # -s
 SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST $(GCCOPTS)
 
 ### Linux (Kernel 2.2.13, SuSE 6.2)
-# SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
-#            -D_GNU_SOURCE $(GCCOPTS)
+#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
+#           -D_GNU_SOURCE $(GCCOPTS)
 
-### Solaris 2.6 and 7
+### Solaris 7
 #SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
 #           -Dsys_siglist=_sys_siglist
 #SYSLIBS = -lnsl -lsocket
+
+### IRIX 6.5
+#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
+#           -DHAS_NO_SOCKLEN_T
+
+### AIX 3.2
+#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
+#           -DHAS_NO_SOCKLEN_T
 
 
 ### It should not be necessary to change anything below this line.
@@ -83,12 +91,6 @@ all: $(TARGET)
 
 $(TARGET): $(LOCALLIBS) $(OBJECTS)
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJECTS) $(LOCALLIBS) $(SYSLIBS)
-
-busch: 
-	rcp -r $(COMPONENTS) busch:src/socket
-
-depend:
-	makedepend $(PROGSOURCES) $(VERSIONFILE) 
 
 tags: TAGS
 TAGS: $(PROGSOURCES) $(HEADERS)
@@ -125,6 +127,6 @@ installmanuals: $(MANUALS)
 clean:
 	rm -f $(TARGET) $(ALIASES) $(OBJECTS) *~ core *.core
 
-$(PROGSOURCES) : $(HEADERS)
+$(OBJECTS) : $(HEADERS)
 
 #EOF

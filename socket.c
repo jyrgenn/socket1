@@ -2,7 +2,7 @@
  */
 
 /*-
- * Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <jnickelsen@acm.org>
+ * Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <ni@jnickelsen.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -16,7 +16,7 @@ program stays as it is: Currently not well tested; interim.
 Since version 1.2 the Socket program is distributed under a
 BSD-style license, but I forgot to mention that earlier.
 
-Juergen Nickelsen [jnickelsen@acm.org 2000-09-27]
+Juergen Nickelsen [ni@jnickelsen.de 2000-09-27]
 
 ======================================================================
 See the file BLURB for a short description of what this program
@@ -29,7 +29,7 @@ stylistic fixes. It is no longer tested on Solaris and Linux, but
 since the changes are very small, it should still work on these
 platforms.
 
-Juergen Nickelsen [jnickelsen@acm.org 1999-09-19]
+Juergen Nickelsen [ni@jnickelsen.de 1999-09-19]
 
 ======================================================================
 README for Socket-1.2.
@@ -44,7 +44,7 @@ next to none in terms of features.
 This release is also not very well tested. I appreciate any bug
 reports you may have.
 
-Juergen Nickelsen [jnickelsen@acm.org 1999-08-06]
+Juergen Nickelsen [ni@jnickelsen.de 1999-08-06]
 
 
 ======================================================================

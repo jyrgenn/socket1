@@ -2,7 +2,7 @@
  */
 
 /*-
- * Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <jnickelsen@acm.org>
+ * Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <ni@jnickelsen.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,10 +58,9 @@
 			     sizeof(ENVNAME_PEERPORT))
 #define MAX_HOSTNAME_LEN 255	/* see RFC 1034 */
 
-/* Irix has no socklen_t */
-#ifdef sgi
+#ifdef HAS_NO_SOCKLEN_T
 typedef int socklen_t;
-#endif
+#endif /* HAS_NO_SOCKLEN_T */
 
 /* Solaris has not INADDR_NONE */
 #ifndef INADDR_NONE

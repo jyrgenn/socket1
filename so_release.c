@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <jnickelsen@acm.org>
+ * Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <ni@jnickelsen.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 char *so_release (void)
 {
     static char release[] =
-	"Socket-1.3pre2 (2000-09-28 by jnickelsen@acm.org)";
+	"Socket-1.3pre2 (2000-09-28 by ni@jnickelsen.de)";
     
     return release ;
 }
