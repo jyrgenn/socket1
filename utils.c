@@ -2,7 +2,7 @@
  */
 
 /*-
- * Copyright (c) 1992, 1999 Juergen Nickelsen <jnickelsen@acm.org>
+ * Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <jnickelsen@acm.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,47 +109,57 @@ void init_sigchld(void)
 #endif /* SIGCHLD */
 }
 
+/* Put a variable into the environment. putenv() makes a copy of the
+   string on some platforms (namely FreeBSD and Linux), but not on
+   others. What a pity. */
+void putenv_copy_2(char *varname, char *value)
+{
+    char *envstr ;
+
+    /* We need space for the strings, a '=', and the null byte. */
+    envstr = malloc(strlen(varname) + strlen(value) + 2) ;
+    if (envstr == NULL) {
+	errno = ENOMEM ;
+	perror2("putenv") ;
+	return ;		/* simply fail here, that's ok. */
+    }
+    strcpy(envstr, varname) ;
+    strcat(envstr, "=") ;
+    strcat(envstr, value) ;
+    putenv(envstr) ;
+}
+
 /* connect stdin with prog's stdout/stderr and stdout
  * with prog's stdin. */
 void open_pipes(char *prog)
 {
-    char envbuf[MAX_ENVNAME_LEN + 1 + MAX_HOSTNAME_LEN + 1] ;
     int from_cld[2] ;		/* from child process */
     int to_cld[2] ;		/* to child process */
     struct sockaddr_in sa ;
     socklen_t addrlen ;
+    char portstr[sizeof("65536")] ; /* enough for 16-bit number */
 
     /* set environment variables for child process for peer and
      * local address and port */
     addrlen = sizeof(sa) ;
     if (getpeername(active_socket, (struct sockaddr *) &sa, &addrlen) < 0) {
 	perror2("getpeername") ; /* should not happen */
-	putenv(ENVNAME_PEERADDR "=unknown") ;
-	putenv(ENVNAME_PEERPORT "=unknown") ;
+	putenv_copy_2(ENVNAME_PEERADDR, "unknown") ;
+	putenv_copy_2(ENVNAME_PEERPORT, "unknown") ;
     } else {
-	strncpy(envbuf, ENVNAME_PEERADDR, MAX_ENVNAME_LEN) ;
-	strcat(envbuf, "=") ;
-	strncat(envbuf, resolve_ipaddr(&sa.sin_addr), MAX_HOSTNAME_LEN) ;
-	putenv(envbuf) ;
-	strncpy(envbuf, ENVNAME_PEERPORT, MAX_ENVNAME_LEN) ;
-	strcat(envbuf, "=") ;
-	sprintf(envbuf + strlen(envbuf), "%d", ntohs(sa.sin_port)) ;
-	putenv(envbuf) ;
+	putenv_copy_2(ENVNAME_PEERADDR, resolve_ipaddr(&sa.sin_addr)) ;
+	sprintf(portstr, "%d", ntohs(sa.sin_port)) ;
+	putenv_copy_2(ENVNAME_PEERPORT, portstr) ;
     }
     addrlen = sizeof(sa) ;
     if (getsockname(active_socket, (struct sockaddr *) &sa, &addrlen) < 0) {
 	perror2("getsockname") ; /* should not happen */
-	putenv(ENVNAME_OWNADDR "=unknown") ;
-	putenv(ENVNAME_OWNPORT "=unknown") ;
+	putenv_copy_2(ENVNAME_OWNADDR, "unknown") ;
+	putenv_copy_2(ENVNAME_OWNPORT, "unknown") ;
     } else {
-	strncpy(envbuf, ENVNAME_OWNADDR, MAX_ENVNAME_LEN) ;
-	strcat(envbuf, "=") ;
-	strncat(envbuf, resolve_ipaddr(&sa.sin_addr), MAX_HOSTNAME_LEN) ;
-	putenv(envbuf) ;
-	strncpy(envbuf, ENVNAME_OWNPORT, MAX_ENVNAME_LEN) ;
-	strcat(envbuf, "=") ;
-	sprintf(envbuf + strlen(envbuf), "%d", ntohs(sa.sin_port)) ;
-	putenv(envbuf) ;
+	putenv_copy_2(ENVNAME_OWNADDR, resolve_ipaddr(&sa.sin_addr)) ;
+	sprintf(portstr, "%d", ntohs(sa.sin_port)) ;
+	putenv_copy_2(ENVNAME_OWNPORT, portstr) ;
     }
 
     /* create pipes */
@@ -204,16 +214,16 @@ void open_pipes(char *prog)
 /* remove zombie child processes */
 void wait_for_children(int sig)
 {
-    int wret, status ;
+    int status = 0 ;
 #ifndef ISC
     struct rusage rusage ;
 #endif
 
     /* Just do a wait, forget result */
 #ifndef ISC
-    while ((wret = wait3(&status, WNOHANG, &rusage)) > 0) ;
+    while (wait3(&status, WNOHANG, &rusage) > 0) ;
 #else
-    while ((wret = waitpid(-1, &status, WNOHANG)) > 0) ;
+    while (waitpid(-1, &status, WNOHANG) > 0) ;
 #endif
 }
 

@@ -1,8 +1,8 @@
-/* This file is part of Socket-1.2p1.
+/* This file is part of Socket-1.3.
  */
 
 /*-
- * Copyright (c) 1992, 1999 Juergen Nickelsen <jnickelsen@acm.org>
+ * Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <jnickelsen@acm.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
