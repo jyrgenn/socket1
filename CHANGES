@@ -1,5 +1,13 @@
 -*-text-*-
 
+Changes in Socket version 1.2p1:
+
+  - Fixed bug with incorrectly initialized SIGCHLD handler
+
+  - ISOfied the remaining functions
+
+  - Some other small style fixes
+
 Changes in Socket version 1.2:
 
   - Adapted to Linux (in this case RH 5.2 with kernel 2.2.2), Solaris
