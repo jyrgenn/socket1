@@ -81,7 +81,7 @@ void init_sigchld(void)
     sigset_t sigset ;
 
     sigfillset(&sigset) ;
-    wait_act.sa_handler = wait_act.sa_handler ;
+    wait_act.sa_handler = wait_for_children ;
     wait_act.sa_mask = sigset ;
     wait_act.sa_flags = 0 ;
     
@@ -164,7 +164,7 @@ void open_pipes(char *prog)
 }
 
 /* remove zombie child processes */
-void wait_for_children(void)
+void wait_for_children(int sig)
 {
     int wret, status ;
 #ifndef ISC
@@ -196,9 +196,7 @@ void add_crs(char *from, char *to, int *sizep)
 }
 
 /* strip CR characters from buffer and adjust *sizep */
-void strip_crs(from, to, sizep)
-char *from, *to ;		/* *from is copied to *to */
-int *sizep ;
+void strip_crs(char *from, char *to, int *sizep)
 {
 
     int countdown ;		/* counter */
