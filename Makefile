@@ -1,7 +1,7 @@
 # Makefile for Socket-1.3.
 #
-# Copyright (c) 1992, 1999, 2000 Juergen Nickelsen <ni@jnickelsen.de>
-# All rights reserved.
+# Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003
+# Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -45,12 +45,13 @@ LDFLAGS = $(SWITCHES) # -s
 ### You may need to uncomment some lines below for your operating
 ### system:
 
-### 4.4 BSD (tested on FreeBSD, but probably works for other BSDs)
+### 4.4 BSD-derived systems (tested on FreeBSD, but probably works
+### for other BSDs)
 SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST $(GCCOPTS)
 
 ### Darwin (MacOS X) version 5.3
-#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
-#           -DHAS_NO_SOCKLEN_T -Wall
+SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
+           -DHAS_NO_SOCKLEN_T $(GCCOPTS)
 
 ### Linux (Kernel 2.2.13, SuSE 6.2)
 #SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
