@@ -59,7 +59,7 @@ int active_socket ;		/* socket with connection */
 int Reuseflag = 1 ;		/* set server socket SO_REUSEADDR */
 char *progname ;		/* name of the game */
 char *pipe_program = NULL ;	/* program to execute in two-way pipe */
-unsigned long bind_addr = INADDR_ANY ; /* address to listen on */
+uint32_t bind_addr = INADDR_ANY;/* address to listen on */
 
 void server(int port, char *service_name) ;
 void handle_server_connection(void) ;

@@ -33,6 +33,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#ifndef HAS_NO_INTTYPES_H
+#include <inttypes.h>
+#endif /* HAS_NO_INTTYPES_H */
 
 /* globals for socket */
 
@@ -73,7 +76,7 @@ int resolve_service(char *name_or_number, char *protocol, char **name) ;
 /* return host name or IP address string of ip_addr.
  */
 char *resolve_ipaddr(struct in_addr *ip_addr) ;
-unsigned long resolve_name(char *address_or_name) ;
+uint32_t resolve_name(char *address_or_name) ;
 void catchsig(int sig) ;
 void usage(void) ;
 int do_read_write(int from, int to) ;
@@ -89,7 +92,7 @@ void init_sigchld(void) ;
 void do_io(void) ;
 void initialize_siglist(void) ;
 int is_number(char *s) ;
-char *dotted_addr(unsigned long addr) ;
+char *dotted_addr(uint32_t addr) ;
 
 /* global variables */
 extern int serverflag ;
@@ -103,7 +106,7 @@ extern int crlfflag ;
 extern int noreverseflag ;
 extern int active_socket ;
 extern char *progname ;
-extern unsigned long bind_addr ;
+extern uint32_t bind_addr ;
 #ifndef HAS_SYS_ERRLIST
 extern char *sys_errlist[] ;
 #endif
