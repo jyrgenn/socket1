@@ -33,6 +33,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <setjmp.h>
 #ifndef HAS_NO_INTTYPES_H
 #include <inttypes.h>
 #endif /* HAS_NO_INTTYPES_H */
@@ -88,7 +89,7 @@ void perror2(char *s) ;
 void add_crs(char *from, char *to, int *sizep) ;
 void strip_crs(char *from, char *to, int *sizep) ;
 void background(void) ;
-void init_sigchld(void) ;
+void init_sighandlers(void) ;
 void do_io(void) ;
 void initialize_siglist(void) ;
 int is_number(char *s) ;
@@ -105,6 +106,8 @@ extern int quitflag ;
 extern int crlfflag ;
 extern int noreverseflag ;
 extern int active_socket ;
+extern int forkflag ;
+extern unsigned int timeout ;
 extern char *progname ;
 extern uint32_t bind_addr ;
 #ifdef HAS_NO_SYS_ERRLIST
@@ -113,5 +116,7 @@ extern char *sys_errlist[] ;
 #ifdef HAS_NO_SYS_SIGLIST
 extern char *sys_siglist[] ;
 #endif /* HAS_NO_SYS_SIGLIST */
+extern jmp_buf setjmp_env ;
+extern int alarmsig_occured ;
 
 /* EOF */

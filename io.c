@@ -129,12 +129,17 @@ void do_io(void)
 	}
 
 	do {
+	    alarm(timeout) ;
 	    /* wait until input is available */
 	    selret = select(fdset_width, &readfds, NULL, NULL, NULL) ;
 	    /* EINTR happens when the process is stopped */
 	    if (selret < 0 && errno != EINTR) {
 		perror2("select") ;
 		exit(1) ;
+	    }
+	    alarm(0) ;
+	    if (alarmsig_occured) {
+		longjmp(setjmp_env, 1) ;
 	    }
 	} while (selret <= 0) ;
 
