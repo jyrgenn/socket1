@@ -1,5 +1,20 @@
 Hey Emacs, this is -*- text -*-.
 
+See the file BLURB for a short description of what this program
+does. A longer description follows below in this file.
+
+Socket 1.2p1 corrects a major bug (the SIGCHLD handler wasn't
+correctly initialized, which would result in crashes or hangs in
+server mode as soon a a subprocess terminates) and has a few
+stylistic fixes. It is no longer tested on Solaris and Linux, but
+since the changes are very small, it should still work on these
+platforms.
+
+Juergen Nickelsen [jnickelsen@acm.org 1999-09-19]
+
+======================================================================
+README for Socket-1.2.
+
 This release Socket-1.2 is an interim release. Some time ago I
 actually began working on Socket version 2, but I don't find very
 often the time to continue the work. In the meantime, I want to
