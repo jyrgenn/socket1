@@ -34,7 +34,11 @@ socket \- create tcp socket and connect to stdin/out
 .SH SYNOPSIS
 .B socket
 [
-.B \-bcfqrRvvvw
+.B \-bcfqrvvvw
+]
+[
+.B \-a
+.I bind-address
 ]
 [
 .B \-p
@@ -44,7 +48,11 @@ socket \- create tcp socket and connect to stdin/out
 .br
 .B socket
 [
-.B \-bcfqrvw
+.B \-bcfqrRvvvw
+]
+[
+.B \-a
+.I bind-address
 ]
 [
 .B \-p
@@ -70,6 +78,16 @@ argument can be a port number or a service name which can be mapped to
 a port number by
 .IR getservbyname (3).
 .SH OPTIONS
+.TP
+.BI "\-a " bind-address
+Bind the socket to the specified
+.I bind-address
+instead of the default address (in client mode) or all addresses of
+the host (in server mode).
+This may lead to a connection failure in client mode if there is no
+route from the
+.I bind-address
+to the destination address.
 .TP
 .BR "\-b " (background)
 The program forks itself into the background, detaches from its
