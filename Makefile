@@ -39,7 +39,7 @@ INSTALLMANPATH = $(INSTALLBASE)/man
 INSTALLMANMODE = 444
 GCCOPTS = -Wall -Wstrict-prototypes -ansi -pedantic
 CC = cc
-CFLAGS  = $(SWITCHES) -g $(GCCOPTS)
+CFLAGS  = $(SWITCHES) -g
 LDFLAGS = $(SWITCHES) # -s
 
 ### You may need to uncomment some lines below for your operating
@@ -106,7 +106,7 @@ $(INSTALLBINPATH)/$(TARGET): $(TARGET)
 	  chmod u+w $(INSTALLBINPATH)/$(TARGET); \
 	fi; \
 	cp $(TARGET) $(INSTALLBINPATH)/$(TARGET); \
-	chmod $(INSTALLBINMODE) $(INSTALLBINPATH)/$(TARGET); \
+	chmod $(INSTALLBINMODE) $(INSTALLBINPATH)/$(TARGET);
 
 installmanuals: $(MANUALS)
 	@-_manuals="$(MAN1)"; \
