@@ -1,11 +1,34 @@
 .\" -*- nroff -*-
 .ig
-$Id$
-This file is part of socket(1).
-Copyright (C) 1992 by Juergen Nickelsen <jnickelsen@acm.org>
-Please read the file LICENSE for further details.
+This file is part of Socket-1.2.
+
+Copyright (c) 1992, 1999 Juergen Nickelsen <jnickelsen@acm.org>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+     $Id$
 ..
-.TH SOCKET 1 "Aug  6, 1992"
+.TH SOCKET 1 "Aug  6, 1999"
 .SH NAME
 socket \- create tcp socket and connect to stdin/out
 .SH SYNOPSIS
@@ -84,7 +107,7 @@ input.
 No data is read from standard input and written to the socket.
 .TP
 .BR "\-R " "(no REUSEADDR)"
-Don't set the socket option SO_REUASEADDR.
+Don't set the socket option SO_REUSEADDR.
 .TP
 .BR "\-s " (server)
 A server socket is created.
@@ -143,14 +166,8 @@ Lots of diagnostics for failed system calls.
 .BI "unknown host " host
 .IR host 's
 address could not be resolved.
-.TP
-.B Signal \fIsignal\fP caught, exiting
-.B Socket
-exits on any signal other than SIGTSTP, SIGCONT, SIGCLD, SIGQUIT.
-.LP
-A non-zero exit code is returned if 
 .B socket
-terminates due to an error condition or a signal.
+terminates due to an error condition.
 .SH SEE ALSO
 .BR accept (2),
 .BR bind (2),
@@ -159,12 +176,14 @@ terminates due to an error condition or a signal.
 .BR gethostbyname (3),
 .BR getservbyname (3)
 .SH BUGS
-\fCsocket \-p\fP terminates due to a SIGPIPE signal when there is more
+This release is extremely overdue, as well as the version 2 release.
+.LP
+\fCsocket \-p\fP terminates due to a SIGPIPE signal if there is more
 data from the socket available than the executed program wants to
 read.
 .LP
 Please report any other bugs to the author.
 .SH VERSION
-This manual page describes Socket\-1.1.
+This manual page describes Socket\-1.2.
 .SH AUTHOR
 Juergen Nickelsen <jnickelsen@acm.org>
