@@ -63,6 +63,11 @@
 typedef int socklen_t;
 #endif
 
+/* Solaris has not INADDR_NONE */
+#ifndef INADDR_NONE
+#define INADDR_NONE 0xffffffff
+#endif /* !INADDR_NONE */
+
 int create_server_socket(int port, int queue_length) ;
 int create_client_socket(char **hostname, int port) ;
 int resolve_service(char *name_or_number, char *protocol, char **name) ;
