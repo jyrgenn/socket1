@@ -2,6 +2,12 @@
 
 Changes in Socket version 1.3:
 
+  - Fixed bug related to partial writes (data corruption caused by
+    always writing from the beginning of the block).
+
+  - Fixed bug for 64-bit platforms: Change type of IP addresses from
+    unsigned long to uint32_t.
+
   - Change of author e-mail address
 
   - -n option for not doing reverse lookups
