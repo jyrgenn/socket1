@@ -47,28 +47,23 @@ LDFLAGS = $(SWITCHES) # -s
 
 ### 4.4 BSD-derived systems (tested on FreeBSD, but probably works
 ### for other BSDs)
-SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST $(GCCOPTS)
+SWITCHES = $(GCCOPTS)
 
 ### Darwin (MacOS X) version 5.3
-#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
-#           -DHAS_NO_SOCKLEN_T $(GCCOPTS)
+#SWITCHES = -DHAS_NO_SOCKLEN_T $(GCCOPTS)
 
 ### Linux (Kernel 2.2.13, SuSE 6.2)
-#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
-#           -D_GNU_SOURCE $(GCCOPTS)
+#SWITCHES = -D_GNU_SOURCE $(GCCOPTS)
 
 ### Solaris 7
-#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
-#           -Dsys_siglist=_sys_siglist
+#SWITCHES = -Dsys_siglist=_sys_siglist
 #SYSLIBS = -lnsl -lsocket
 
 ### IRIX 6.5
-#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
-#           -DHAS_NO_SOCKLEN_T
+#SWITCHES = -DHAS_NO_SOCKLEN_T
 
 ### AIX 3.2
-#SWITCHES = -DHAS_POSIX_SIGS -DHAS_SYS_SIGLIST -DHAS_SYS_ERRLIST \
-#           -DHAS_NO_SOCKLEN_T
+# SWITCHES = -DHAS_NO_SOCKLEN_T
 
 
 ### It should not be necessary to change anything below this line.
