@@ -37,8 +37,8 @@ INSTALLBINPATH = $(INSTALLBASE)/bin
 INSTALLBINMODE = 755
 INSTALLMANPATH = $(INSTALLBASE)/man
 INSTALLMANMODE = 444
-GCCOPTS = -Wall -Wstrict-prototypes
-CC = cc
+GCCOPTS = -Wall -Wstrict-prototypes -ansi -pedantic
+CC = gcc
 CFLAGS  = $(SWITCHES) -g $(GCCOPTS)
 LDFLAGS = $(SWITCHES) # -s
 
