@@ -1,8 +1,8 @@
-/* This file is part of Socket-1.3.
+/* This file is part of Socket-1.4.
  */
 
 /*-
- * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003
+ * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005
  * Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,10 +26,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Id$
+ *      $Id$
  */
 
-#define _BSD			/* AIX *loves* this */
+#define _BSD                    /* AIX *loves* this */
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -48,29 +48,29 @@ int do_read_write(int from, int to)
     char input_buffer[BUFSIZ] ;
     
     if ((size = read(from, input_buffer, BUFSIZ)) == -1) {
-	perror2("read") ;
-	return -1 ;
+        perror2("read") ;
+        return -1 ;
     }
-    if (size == 0) {		/* end-of-file condition */
-	if (from == active_socket) {
-	    /* if it was the socket, the connection is closed */
-	    if (verboseflag) {
-		fprintf(stderr, "connection closed by peer\n") ;
-	    }
-	    return -1 ;
-	} else {
-	    if (quitflag) {
-		/* we close connection later */
-		if (verboseflag) {
-		    fprintf(stderr, "connection closed\n") ;
-		}
-		return -1 ;
-	    } else if (verboseflag) {
-		fprintf(stderr, "end of input on stdin\n") ;
-	    }
-	    readonlyflag = 1 ;
-	    return 1 ;
-	}
+    if (size == 0) {            /* end-of-file condition */
+        if (from == active_socket) {
+            /* if it was the socket, the connection is closed */
+            if (verboseflag) {
+                fprintf(stderr, "connection closed by peer\n") ;
+            }
+            return -1 ;
+        } else {
+            if (quitflag) {
+                /* we close connection later */
+                if (verboseflag) {
+                    fprintf(stderr, "connection closed\n") ;
+                }
+                return -1 ;
+            } else if (verboseflag) {
+                fprintf(stderr, "end of input on stdin\n") ;
+            }
+            readonlyflag = 1 ;
+            return 1 ;
+        }
     }
     return do_write(input_buffer, size, to) ;
 
@@ -79,30 +79,30 @@ int do_read_write(int from, int to)
 /* write the buffer; in successive pieces, if necessary. */
 int do_write(char *buffer, int size, int to)
 {
-    char buffer2[2 * BUFSIZ] ;	/* expanding lf's to crlf's can
-				 * make the block twice as big at most */
+    char buffer2[2 * BUFSIZ] ;  /* expanding lf's to crlf's can
+                                 * make the block twice as big at most */
     int written ;
 
     if (crlfflag) {
-	if (to == active_socket) {
-	    add_crs(buffer, buffer2, &size) ;
-	} else {
-	    strip_crs(buffer, buffer2, &size) ;
-	}
-	buffer = buffer2 ;
+        if (to == active_socket) {
+            add_crs(buffer, buffer2, &size) ;
+        } else {
+            strip_crs(buffer, buffer2, &size) ;
+        }
+        buffer = buffer2 ;
     }
     while (size > 0) {
-	written = write(to, buffer, size) ;
-	if (written == -1) {
-	    /* this should not happen */
-	    perror2("write") ;
-	    fprintf(stderr, "%s: error writing to %s\n",
-		    progname,
-		    to == active_socket ? "socket" : "stdout") ;
-	    return -1 ;
-	}
-	size -= written ;
-	buffer += written ;
+        written = write(to, buffer, size) ;
+        if (written == -1) {
+            /* this should not happen */
+            perror2("write") ;
+            fprintf(stderr, "%s: error writing to %s\n",
+                    progname,
+                    to == active_socket ? "socket" : "stdout") ;
+            return -1 ;
+        }
+        size -= written ;
+        buffer += written ;
     }
     return 1 ;
 }
@@ -116,41 +116,41 @@ void do_io(void)
     int selret ;
 
     fdset_width = (IN > active_socket ? IN : active_socket) + 1 ;
-    while (1) {			/* this loop is exited sideways */
-	/* set up file descriptor set for select(2) */
-	FD_ZERO(&readfds) ;
-	if (!readonlyflag) {
-	    FD_SET(IN, &readfds) ;
-	}
-	if (!writeonlyflag) {
-	    FD_SET(active_socket, &readfds) ;
-	}
+    while (1) {                 /* this loop is exited sideways */
+        /* set up file descriptor set for select(2) */
+        FD_ZERO(&readfds) ;
+        if (!readonlyflag) {
+            FD_SET(IN, &readfds) ;
+        }
+        if (!writeonlyflag) {
+            FD_SET(active_socket, &readfds) ;
+        }
 
-	do {
-	    alarm(timeout) ;
-	    /* wait until input is available */
-	    selret = select(fdset_width, &readfds, NULL, NULL, NULL) ;
-	    /* EINTR happens when the process is stopped */
-	    if (selret < 0 && errno != EINTR) {
-		perror2("select") ;
-		exit(1) ;
-	    }
-	    alarm(0) ;
-	    if (alarmsig_occured) {
-		longjmp(setjmp_env, 1) ;
-	    }
-	} while (selret <= 0) ;
+        do {
+            alarm(timeout) ;
+            /* wait until input is available */
+            selret = select(fdset_width, &readfds, NULL, NULL, NULL) ;
+            /* EINTR happens when the process is stopped */
+            if (selret < 0 && errno != EINTR) {
+                perror2("select") ;
+                exit(1) ;
+            }
+            alarm(0) ;
+            if (alarmsig_occured) {
+                longjmp(setjmp_env, 1) ;
+            }
+        } while (selret <= 0) ;
 
-	/* do the appropriate read and write */
-	if (FD_ISSET(active_socket, &readfds)) {
-	    if (do_read_write(active_socket, OUT) < 0) {
-		break ;
-	    }
-	} else {
-	    if (do_read_write(IN, active_socket) < 0) {
-		break ;
-	    }
-	}
+        /* do the appropriate read and write */
+        if (FD_ISSET(active_socket, &readfds)) {
+            if (do_read_write(active_socket, OUT) < 0) {
+                break ;
+            }
+        } else {
+            if (do_read_write(IN, active_socket) < 0) {
+                break ;
+            }
+        }
     }
 }
 

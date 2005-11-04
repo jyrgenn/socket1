@@ -1,8 +1,8 @@
-/* This file is part of Socket-1.3.
+/* This file is part of Socket-1.4.
  */
 
 /*-
- * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003
+ * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005
  * Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Id$
+ *      $Id$
  */
 
 #include <stdio.h>
@@ -51,7 +51,7 @@
 void usage(void)
 {
     static char ustring[] =
-	"Usage: %s [-bclnqrRvvw] [-a bind-address] [-p prog] [-s | host] port\n" ;
+        "Usage: %s [-bcelnqrRvvw] [-a bind-address] [-p prog] [-s | host] port\n" ;
 
     fprintf(stderr, ustring, progname) ;
 }
@@ -67,10 +67,10 @@ void perror2(char *s)
 int is_number(char *s)
 {
     while (*s) {
-	if (*s < '0' || *s > '9') {
-	    return 0 ;
-	}
-	s++ ;
+        if (*s < '0' || *s > '9') {
+            return 0 ;
+        }
+        s++ ;
     }
     return 1 ;
 }
@@ -81,7 +81,7 @@ void handle_sigalrm(int signal)
     alarmsig_occured = 1 ;
     fprintf(stderr, "read timeout, closing connection\n") ;
     if (!serverflag || forkflag) {
-	exit(3) ;
+        exit(3) ;
     }
 }
 
@@ -99,7 +99,7 @@ void init_sighandler(int sig, void (*handler)(int))
     handler_act.sa_flags = 0 ;
     
 #else  /* HAS_NO_POSIX_SIGS */
-#ifdef SIG_SETMASK		/* only with BSD signals */
+#ifdef SIG_SETMASK              /* only with BSD signals */
     static struct sigvec handler_vec = { handler, ~0, 0 } ;
 #endif /* SIG_SETMASK */
 #endif /* else HAS_NO_POSIX_SIGS */
@@ -132,9 +132,9 @@ void putenv_copy_2(char *varname, char *value)
     /* We need space for the strings, a '=', and the null byte. */
     envstr = malloc(strlen(varname) + strlen(value) + 2) ;
     if (envstr == NULL) {
-	errno = ENOMEM ;
-	perror2("putenv") ;
-	return ;		/* simply fail here, that's ok. */
+        errno = ENOMEM ;
+        perror2("putenv") ;
+        return ;                /* simply fail here, that's ok. */
     }
     strcpy(envstr, varname) ;
     strcat(envstr, "=") ;
@@ -146,8 +146,8 @@ void putenv_copy_2(char *varname, char *value)
  * with prog's stdin. */
 void open_pipes(char *prog)
 {
-    int from_cld[2] ;		/* from child process */
-    int to_cld[2] ;		/* to child process */
+    int from_cld[2] ;           /* from child process */
+    int to_cld[2] ;             /* to child process */
     struct sockaddr_in sa ;
     socklen_t addrlen ;
     char portstr[sizeof("65536")] ; /* enough for 16-bit number */
@@ -156,71 +156,73 @@ void open_pipes(char *prog)
      * local address and port */
     addrlen = sizeof(sa) ;
     if (getpeername(active_socket, (struct sockaddr *) &sa, &addrlen) < 0) {
-	perror2("getpeername") ; /* should not happen */
-	putenv_copy_2(ENVNAME_PEERADDR, "unknown") ;
-	putenv_copy_2(ENVNAME_PEERPORT, "unknown") ;
+        perror2("getpeername") ; /* should not happen */
+        putenv_copy_2(ENVNAME_PEERADDR, "unknown") ;
+        putenv_copy_2(ENVNAME_PEERPORT, "unknown") ;
     } else {
-	putenv_copy_2(ENVNAME_PEERADDR, resolve_ipaddr(&sa.sin_addr)) ;
-	sprintf(portstr, "%d", ntohs(sa.sin_port)) ;
-	putenv_copy_2(ENVNAME_PEERPORT, portstr) ;
+        putenv_copy_2(ENVNAME_PEERADDR, resolve_ipaddr(&sa.sin_addr)) ;
+        sprintf(portstr, "%d", ntohs(sa.sin_port)) ;
+        putenv_copy_2(ENVNAME_PEERPORT, portstr) ;
     }
     addrlen = sizeof(sa) ;
     if (getsockname(active_socket, (struct sockaddr *) &sa, &addrlen) < 0) {
-	perror2("getsockname") ; /* should not happen */
-	putenv_copy_2(ENVNAME_OWNADDR, "unknown") ;
-	putenv_copy_2(ENVNAME_OWNPORT, "unknown") ;
+        perror2("getsockname") ; /* should not happen */
+        putenv_copy_2(ENVNAME_OWNADDR, "unknown") ;
+        putenv_copy_2(ENVNAME_OWNPORT, "unknown") ;
     } else {
-	putenv_copy_2(ENVNAME_OWNADDR, resolve_ipaddr(&sa.sin_addr)) ;
-	sprintf(portstr, "%d", ntohs(sa.sin_port)) ;
-	putenv_copy_2(ENVNAME_OWNPORT, portstr) ;
+        putenv_copy_2(ENVNAME_OWNADDR, resolve_ipaddr(&sa.sin_addr)) ;
+        sprintf(portstr, "%d", ntohs(sa.sin_port)) ;
+        putenv_copy_2(ENVNAME_OWNPORT, portstr) ;
     }
 
     /* create pipes */
     if (pipe(from_cld) == -1) {
-	perror2("pipe") ;
-	exit(errno) ;
+        perror2("pipe") ;
+        exit(errno) ;
     }
     if (pipe(to_cld) == -1) {
-	perror2("pipe") ;
-	exit(errno) ;
+        perror2("pipe") ;
+        exit(errno) ;
     }
 
     /* for child process */
     switch (fork()) {
-      case 0:			/* this is the child process */
-	/* connect stdin to pipe */
-	close(0) ;
-	close(to_cld[1]) ;
-	dup2(to_cld[0], 0) ;
-	close(to_cld[0]) ;
-	/* connect stdout to pipe */
-	close(1) ;
-	close(from_cld[0]) ;
-	dup2(from_cld[1], 1) ;
-	/* connect stderr to pipe */
-	close(2) ;
-	dup2(from_cld[1], 2) ;
-	close(from_cld[1]) ;
-	/* call program via sh */
-	execl("/bin/sh", "sh", "-c", prog, NULL) ;
-	perror2("exec /bin/sh") ;
-	/* terminate parent silently */
-	kill(getppid(), SIGUSR1) ;
-	exit(255) ;
+      case 0:                   /* this is the child process */
+        /* connect stdin to pipe */
+        close(0) ;
+        close(to_cld[1]) ;
+        dup2(to_cld[0], 0) ;
+        close(to_cld[0]) ;
+        /* connect stdout to pipe */
+        close(1) ;
+        close(from_cld[0]) ;
+        dup2(from_cld[1], 1) ;
+        /* connect stderr to pipe */
+        if (! nostderrflag) {
+            close(2) ;
+            dup2(from_cld[1], 2) ;
+            close(from_cld[1]) ;
+        }
+        /* call program via sh */
+        execl("/bin/sh", "sh", "-c", prog, NULL) ;
+        perror2("exec /bin/sh") ;
+        /* terminate parent silently */
+        kill(getppid(), SIGUSR1) ;
+        exit(255) ;
       case -1:
-	perror2("fork") ;	/* fork failed */
-	exit(errno) ;
-      default:			/* parent process */
-	/* connect stderr to pipe */
-	close(0) ;
-	close(from_cld[1]) ;
-	dup2(from_cld[0], 0) ;
-	close(from_cld[0]) ;
-	/* connect stderr to pipe */
-	close(1) ;
-	close(to_cld[0]) ;
-	dup2(to_cld[1], 1) ;
-	close(to_cld[1]) ;
+        perror2("fork") ;       /* fork failed */
+        exit(errno) ;
+      default:                  /* parent process */
+        /* connect stderr to pipe */
+        close(0) ;
+        close(from_cld[1]) ;
+        dup2(from_cld[0], 0) ;
+        close(from_cld[0]) ;
+        /* connect stderr to pipe */
+        close(1) ;
+        close(to_cld[0]) ;
+        dup2(to_cld[1], 1) ;
+        close(to_cld[1]) ;
     }
 }
 
@@ -243,16 +245,16 @@ void wait_for_children(int sig)
 /* expand LF characters to CRLF and adjust *sizep */
 void add_crs(char *from, char *to, int *sizep)
 {
-    int countdown ;		/* counter */
+    int countdown ;             /* counter */
 
     countdown = *sizep ;
     while (countdown) {
-	if (*from == '\n') {
-	    *to++ = '\r' ;
-	    (*sizep)++ ;
-	}
-	*to++ = *from++ ;
-	countdown-- ;
+        if (*from == '\n') {
+            *to++ = '\r' ;
+            (*sizep)++ ;
+        }
+        *to++ = *from++ ;
+        countdown-- ;
     }
 }
 
@@ -260,17 +262,17 @@ void add_crs(char *from, char *to, int *sizep)
 void strip_crs(char *from, char *to, int *sizep)
 {
 
-    int countdown ;		/* counter */
+    int countdown ;             /* counter */
 
     countdown = *sizep ;
     while (countdown) {
-	if (*from == '\r') {
-	    from++ ;
-	    (*sizep)-- ;
-	} else {
-	    *to++ = *from++ ;
-	}
-	countdown-- ;
+        if (*from == '\r') {
+            from++ ;
+            (*sizep)-- ;
+        } else {
+            *to++ = *from++ ;
+        }
+        countdown-- ;
     }
 }
 
@@ -279,34 +281,34 @@ void strip_crs(char *from, char *to, int *sizep)
 /* put yourself in the background */
 void background(void)
 {
-    int child_pid ;		/* PID of child process */
-    int nulldev_fd ;		/* file descriptor for null device */
+    int child_pid ;             /* PID of child process */
+    int nulldev_fd ;            /* file descriptor for null device */
 
     child_pid = fork() ;
     switch (child_pid) {
       case -1:
-	perror2("fork") ;
-	exit(1) ;
+        perror2("fork") ;
+        exit(1) ;
       case 0:
 #ifdef NOSETSID
-	ioctl(0, TIOCNOTTY, 0) ;
+        ioctl(0, TIOCNOTTY, 0) ;
 #else
-	setsid() ;
+        setsid() ;
 #endif
-	chdir("/") ;
-	if ((nulldev_fd = open(NULL_DEVICE, O_RDWR, 0)) != -1) {
-	    int i ;
+        chdir("/") ;
+        if ((nulldev_fd = open(NULL_DEVICE, O_RDWR, 0)) != -1) {
+            int i ;
 
-	    for (i = 0; i < 3; i++) {
-		if (isatty(i)) {
-		    dup2(nulldev_fd, i) ;
-		}
-	    }
-	    close(nulldev_fd) ;
-	}
-	break ;
+            for (i = 0; i < 3; i++) {
+                if (isatty(i)) {
+                    dup2(nulldev_fd, i) ;
+                }
+            }
+            close(nulldev_fd) ;
+        }
+        break ;
       default:
-	exit(0) ;
+        exit(0) ;
     }
 }
 

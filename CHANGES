@@ -1,5 +1,15 @@
 -*-text-*-
 
+Changes in Socket version 1.4:
+
+  - no more tab characters in the sources
+
+  - support for building multiple architectures in one directory;
+    requires GNU Make
+
+  - -e option for not redirecting stderr of a called program to the
+    socket, by Robert Lemmen
+
 Changes in Socket version 1.3:
 
   - Fixed bug related to partial writes: always writing from the
