@@ -39,7 +39,7 @@ INSTALLMANPATH = $(INSTALLBASE)/man
 INSTALLMANMODE = 444
 GCCOPTS = -Wall -Wstrict-prototypes
 CC = cc
-CFLAGS  = $(SWITCHES) -g
+CFLAGS = $(SWITCHES) -g
 LDFLAGS = $(SWITCHES) # -s
 
 ### You may need to uncomment some lines below for your operating
@@ -47,10 +47,10 @@ LDFLAGS = $(SWITCHES) # -s
 
 ### 4.4 BSD-derived systems (tested on FreeBSD, but probably works
 ### for other BSDs)
-SWITCHES = $(GCCOPTS)
+#SWITCHES = $(GCCOPTS)
 
-### Darwin (MacOS X) version 5.3
-#SWITCHES = -DHAS_NO_SOCKLEN_T $(GCCOPTS)
+### Darwin (MacOS X, actually) 
+SWITCHES = -DHAS_NO_SOCKLEN_T $(GCCOPTS)
 
 ### Linux (Kernel 2.2.13, SuSE 6.2)
 #SWITCHES = -D_GNU_SOURCE $(GCCOPTS)
@@ -75,6 +75,7 @@ BASE = /home/stone/nickel/src
 NODEPATH = socket
 NODENAME = "Socket"
 TARGET = socket
+ATARGET = $(ARCHDIR)/$(TARGET)
 VERSIONFILE = 	so_release.c
 VERSIONOBJECT =	so_release.o
 PROGSOURCES = socket.c io.c utils.c socketp.c
@@ -85,29 +86,40 @@ HEADERS = globals.h
 MANUALS = $(MAN1)
 MAN1 = socket.1
 COMPONENTS = $(SOURCES) $(HEADERS) $(MANUALS) Makefile Dependencies
-OBJECTS = $(VERSIONOBJECT) socket.o io.o utils.o socketp.o
+ARCHDIR = $(shell march)
+OBJECTS = $(ARCHDIR)/$(VERSIONOBJECT) \
+          $(ARCHDIR)/socket.o \
+          $(ARCHDIR)/io.o \
+          $(ARCHDIR)/utils.o \
+          $(ARCHDIR)/socketp.o
 
-all: $(TARGET)
+all: $(ATARGET)
 
-$(TARGET): $(LOCALLIBS) $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJECTS) $(LOCALLIBS) $(SYSLIBS)
+$(ATARGET): $(ARCHDIR) $(LOCALLIBS) $(OBJECTS)
+	$(CC) $(LDFLAGS) -o $(ATARGET) $(OBJECTS) $(LOCALLIBS) $(SYSLIBS)
 
 tags: TAGS
 TAGS: $(PROGSOURCES) $(HEADERS)
 	etags $(PROGSOURCES) $(HEADERS)
 
+$(ARCHDIR)/%.o : %.c
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+$(ARCHDIR):
+	mkdir $(ARCHDIR)
+
 $(VERSIONOBJECT): $(PROGSOURCES)
 
 install: $(INSTALLBINPATH)/$(TARGET) installmanuals
 
-$(INSTALLBINPATH)/$(TARGET): $(TARGET)
-	@-echo "installing $(TARGET) in $(INSTALLBINPATH)"; \
+$(INSTALLBINPATH)/$(TARGET): $(ATARGET)
+	@-echo "installing $(ATARGET) in $(INSTALLBINPATH)"; \
 	if [ -f $(INSTALLBINPATH)/$(TARGET) ] && \
 	   [ ! -w $(INSTALLBINPATH)/$(TARGET) ]; \
 	then \
 	  chmod u+w $(INSTALLBINPATH)/$(TARGET); \
 	fi; \
-	cp $(TARGET) $(INSTALLBINPATH)/$(TARGET); \
+	cp $(ATARGET) $(INSTALLBINPATH)/$(TARGET); \
 	chmod $(INSTALLBINMODE) $(INSTALLBINPATH)/$(TARGET);
 
 installmanuals: $(MANUALS)
@@ -125,7 +137,7 @@ installmanuals: $(MANUALS)
 	done
 
 clean:
-	rm -f $(TARGET) $(ALIASES) $(OBJECTS) *~ core *.core
+	rm -f $(ATARGET) $(ALIASES) $(OBJECTS) *~ core *.core
 
 $(OBJECTS) : $(HEADERS)
 
