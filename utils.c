@@ -81,7 +81,7 @@ void handle_sigalrm(int signal)
     alarmsig_occured = 1 ;
     fprintf(stderr, "read timeout, closing connection\n") ;
     if (!serverflag || forkflag) {
-	exit(0) ;
+	exit(3) ;
     }
 }
 
