@@ -1,8 +1,8 @@
-/* This file is part of Socket-1.3.
+/* This file is part of Socket-1.4.
  */
 
 /*-
- * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003
+ * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005
  * Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Id$
+ *      $Id$
  */
 
 #include <sys/types.h>
@@ -50,13 +50,13 @@ int create_server_socket(int port, int queue_length)
     int one = 1 ;
 
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-	return -1 ;
+        return -1 ;
     }
-    if (Reuseflag) {		/* This is default. */
-	if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
-		       sizeof(one)) < 0) {
-	    return -1 ;
-	}
+    if (Reuseflag) {            /* This is default. */
+        if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
+                       sizeof(one)) < 0) {
+            return -1 ;
+        }
     }
 
     memset((char *) &sa, 0, sizeof(sa)) ;
@@ -65,10 +65,10 @@ int create_server_socket(int port, int queue_length)
     sa.sin_port = htons(port) ;
 
     if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
-	return -1 ;
+        return -1 ;
     }
     if (listen(s, queue_length) < 0) {
-	return -1 ;
+        return -1 ;
     }
 
     return s ;
@@ -86,46 +86,46 @@ int create_client_socket(char **hostname, int port)
 
     memset(&sa, 0, sizeof(sa)) ;
     if ((addr = inet_addr(*hostname)) != -1) {
-	/* is Internet addr in octet notation */
-	memcpy((char *) &sa.sin_addr, &addr, sizeof(addr)) ; /* set address */
-	sa.sin_family = AF_INET ;
+        /* is Internet addr in octet notation */
+        memcpy((char *) &sa.sin_addr, &addr, sizeof(addr)) ; /* set address */
+        sa.sin_family = AF_INET ;
     } else {
-	/* do we know the host's address? */
-	if (verboseflag >= 2) {
-	    fprintf(stderr, "resolving %s... ", *hostname) ;
-	}
-	if ((hp = gethostbyname(*hostname)) == NULL) {
-	    return -2 ;
-	}
-	*hostname = hp->h_name ;
-	memcpy((char *) &sa.sin_addr, hp->h_addr, hp->h_length) ;
-	sa.sin_family = hp->h_addrtype ;
-	if (verboseflag >= 2) {
-	    fprintf(stderr, "%s\n", inet_ntoa(sa.sin_addr)) ;
-	}
+        /* do we know the host's address? */
+        if (verboseflag >= 2) {
+            fprintf(stderr, "resolving %s... ", *hostname) ;
+        }
+        if ((hp = gethostbyname(*hostname)) == NULL) {
+            return -2 ;
+        }
+        *hostname = hp->h_name ;
+        memcpy((char *) &sa.sin_addr, hp->h_addr, hp->h_length) ;
+        sa.sin_family = hp->h_addrtype ;
+        if (verboseflag >= 2) {
+            fprintf(stderr, "%s\n", inet_ntoa(sa.sin_addr)) ;
+        }
     }
 
     sa.sin_port = htons((u_short) port) ;
 
     if ((s = socket(sa.sin_family, SOCK_STREAM, 0)) < 0) { /* get socket */
-	return -1 ;
+        return -1 ;
     }
     if (bind_addr != INADDR_ANY) {
-	memset((char *) &local_sa, 0, sizeof(local_sa)) ;
-	local_sa.sin_family = AF_INET ;
-	local_sa.sin_addr.s_addr = htonl(bind_addr) ;
+        memset((char *) &local_sa, 0, sizeof(local_sa)) ;
+        local_sa.sin_family = AF_INET ;
+        local_sa.sin_addr.s_addr = htonl(bind_addr) ;
 
-	if (bind(s, (struct sockaddr *) &local_sa, sizeof(local_sa)) < 0) {
-	    return -1 ;
-	}
+        if (bind(s, (struct sockaddr *) &local_sa, sizeof(local_sa)) < 0) {
+            return -1 ;
+        }
     }
     if (verboseflag >= 2) {
-	fprintf(stderr, "trying... ") ;
+        fprintf(stderr, "trying... ") ;
     }
     alarm(timeout) ;
     if (connect(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) { /* connect */
-	close(s) ;
-	return -1 ;
+        close(s) ;
+        return -1 ;
     }
     alarm(0) ;
     return s ;
@@ -140,25 +140,25 @@ int resolve_service(char *name_or_number, char *protocol, char **name)
     int port ;
 
     if (is_number(name_or_number)) {
-	port = atoi(name_or_number) ;
-	if (name != NULL) {
-	    servent = getservbyport(htons(port), protocol) ;
-	    if (servent != NULL) {
-		*name = servent->s_name ;
-	    } else {
-		*name = NULL ;
-	    }
-	}
-	return port ;
+        port = atoi(name_or_number) ;
+        if (name != NULL) {
+            servent = getservbyport(htons(port), protocol) ;
+            if (servent != NULL) {
+                *name = servent->s_name ;
+            } else {
+                *name = NULL ;
+            }
+        }
+        return port ;
     } else {
-	servent = getservbyname(name_or_number, protocol) ;
-	if (servent == NULL) {
-	    return -1 ;
-	}
-	if (name != NULL) {
-	    *name = servent->s_name ;
-	}
-	return ntohs(servent->s_port) ;
+        servent = getservbyname(name_or_number, protocol) ;
+        if (servent == NULL) {
+            return -1 ;
+        }
+        if (name != NULL) {
+            *name = servent->s_name ;
+        }
+        return ntohs(servent->s_port) ;
     }
 }
 
@@ -169,11 +169,11 @@ char *resolve_ipaddr(struct in_addr *ip_addr)
     struct hostent *he ;
 
     if (noreverseflag) {
-	return inet_ntoa(*ip_addr) ;
+        return inet_ntoa(*ip_addr) ;
     } else {
-	he = gethostbyaddr((const char *) &ip_addr->s_addr,
-			   sizeof(ip_addr->s_addr), AF_INET) ;
-	return he ? he->h_name : inet_ntoa(*ip_addr) ;
+        he = gethostbyaddr((const char *) &ip_addr->s_addr,
+                           sizeof(ip_addr->s_addr), AF_INET) ;
+        return he ? he->h_name : inet_ntoa(*ip_addr) ;
     }
 }
 
@@ -182,10 +182,10 @@ char *dotted_addr(uint32_t addr)
     static char dotted[sizeof("xxx.xxx.xxx.xxx")] ;
 
     sprintf(dotted, "%d.%d.%d.%d",
-	    (addr >> 24) & 0xff,
-	    (addr >> 16) & 0xff,
-	    (addr >>  8) & 0xff,
-	    addr         & 0xff) ;
+            (addr >> 24) & 0xff,
+            (addr >> 16) & 0xff,
+            (addr >>  8) & 0xff,
+            addr         & 0xff) ;
     return dotted ;
 }
 
@@ -199,19 +199,19 @@ uint32_t resolve_name(char *address_or_name)
     struct hostent *hp ;
 
     if ((addr = inet_addr(address_or_name)) != INADDR_NONE) {
-	/* is Internet addr in octet notation */
-	ret_addr = addr ;
+        /* is Internet addr in octet notation */
+        ret_addr = addr ;
     } else {
-	/* do we know the host's address? */
-	if (verboseflag >= 2) {
-	    fprintf(stderr, "resolving %s... ", address_or_name) ;
-	}
-	if ((hp = gethostbyname(address_or_name)) != NULL) {
-	    memcpy(&ret_addr, hp->h_addr, sizeof(uint32_t)) ;
-	    if (verboseflag >= 2) {
-		fprintf(stderr, "%s\n", dotted_addr(htonl(ret_addr))) ;
-	    }
-	}
+        /* do we know the host's address? */
+        if (verboseflag >= 2) {
+            fprintf(stderr, "resolving %s... ", address_or_name) ;
+        }
+        if ((hp = gethostbyname(address_or_name)) != NULL) {
+            memcpy(&ret_addr, hp->h_addr, sizeof(uint32_t)) ;
+            if (verboseflag >= 2) {
+                fprintf(stderr, "%s\n", dotted_addr(htonl(ret_addr))) ;
+            }
+        }
     }
     return htonl(ret_addr) ;
 }

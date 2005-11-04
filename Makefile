@@ -1,6 +1,6 @@
-# Makefile for Socket-1.3.
+# Makefile for Socket-1.4.
 #
-# Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003
+# Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005
 # Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -47,10 +47,10 @@ LDFLAGS = $(SWITCHES) # -s
 
 ### 4.4 BSD-derived systems (tested on FreeBSD, but probably works
 ### for other BSDs)
-#SWITCHES = $(GCCOPTS)
+SWITCHES = $(GCCOPTS)
 
 ### Darwin (MacOS X, actually) 
-SWITCHES = -DHAS_NO_SOCKLEN_T $(GCCOPTS)
+#SWITCHES = -DHAS_NO_SOCKLEN_T $(GCCOPTS)
 
 ### Linux (Kernel 2.2.13, SuSE 6.2)
 #SWITCHES = -D_GNU_SOURCE $(GCCOPTS)

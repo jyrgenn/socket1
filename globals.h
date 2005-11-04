@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Id$
+ *      $Id$
  */
 
 #include <sys/types.h>
@@ -40,10 +40,10 @@
 
 /* globals for socket */
 
-#define IN	0		/* standard input */
-#define OUT	1		/* standard output */
+#define IN      0               /* standard input */
+#define OUT     1               /* standard output */
 
-#define LLEN	100		/* buffer size fo perror2() */
+#define LLEN    100             /* buffer size fo perror2() */
 
 /* Names of environment variables for cild process */
 #define ENVNAME_OWNADDR  "SOCKET_LOCAL_ADDRESS"
@@ -57,10 +57,10 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MAX4(a, b, c, d) MAX(MAX(a, b), MAX(c, d))
 #define MAX_ENVNAME_LEN MAX4(sizeof(ENVNAME_OWNADDR),  \
-			     sizeof(ENVNAME_OWNPORT),  \
-			     sizeof(ENVNAME_PEERADDR), \
-			     sizeof(ENVNAME_PEERPORT))
-#define MAX_HOSTNAME_LEN 255	/* see RFC 1034 */
+                             sizeof(ENVNAME_OWNPORT),  \
+                             sizeof(ENVNAME_PEERADDR), \
+                             sizeof(ENVNAME_PEERPORT))
+#define MAX_HOSTNAME_LEN 255    /* see RFC 1034 */
 
 #ifdef HAS_NO_SOCKLEN_T
 typedef int socklen_t;
@@ -98,6 +98,7 @@ char *dotted_addr(uint32_t addr) ;
 /* global variables */
 extern int serverflag ;
 extern int loopflag ;
+extern int nostderrflag ;
 extern int verboseflag ;
 extern int readonlyflag ;
 extern int Reuseflag ;

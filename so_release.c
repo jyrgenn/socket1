@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003
+ * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005
  * Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Id$
+ *      $Id$
  */
 
 #include "globals.h"
@@ -31,7 +31,7 @@
 char *so_release (void)
 {
     static char release[] =
-	"Socket-1.unreleased (2000-00-00 by ni@jnickelsen.de)";
+        "Socket-1.unreleased (2000-00-00 by ni@jnickelsen.de)";
     
     return release ;
 }
