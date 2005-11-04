@@ -34,11 +34,9 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <string.h>
-#ifdef ISC
-#include <sys/bsdtypes.h>
-#endif
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include "globals.h"
 
