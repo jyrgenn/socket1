@@ -1,6 +1,6 @@
 # Makefile for Socket-1.4.
 #
-# Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005
+# Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005, 2006
 # Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 #
 
 ### adjust these to your taste and your C compiler.
-### This is set up to install socket as /usr/local/bin/socket and
+### The default is set up to install socket as /usr/local/bin/socket and
 ### socket.1 in /usr/local/man/man1/socket.1
 ### Make sure the target directories exist before doing a "make install".
 
@@ -41,6 +41,9 @@ GCCOPTS = -Wall -Wstrict-prototypes
 CC = cc
 CFLAGS = $(SWITCHES) -g
 LDFLAGS = $(SWITCHES) # -s
+# To use an architecture-specific compile directory (inside of the
+# source directory):
+ARCHDIR = 
 
 ### You may need to uncomment some lines below for your operating
 ### system:
@@ -71,11 +74,10 @@ SWITCHES = $(GCCOPTS)
 
 MAKE = make
 SHELL = /bin/sh
-BASE = /home/stone/nickel/src
 NODEPATH = socket
 NODENAME = "Socket"
 TARGET = socket
-ATARGET = $(ARCHDIR)/$(TARGET)
+ATARGET = ./$(ARCHDIR)/$(TARGET)
 VERSIONFILE = 	so_release.c
 VERSIONOBJECT =	so_release.o
 PROGSOURCES = socket.c io.c utils.c socketp.c
@@ -86,27 +88,26 @@ HEADERS = globals.h
 MANUALS = $(MAN1)
 MAN1 = socket.1
 COMPONENTS = $(SOURCES) $(HEADERS) $(MANUALS) Makefile Dependencies
-ARCHDIR = $(shell march)
-OBJECTS = $(ARCHDIR)/$(VERSIONOBJECT) \
-          $(ARCHDIR)/socket.o \
-          $(ARCHDIR)/io.o \
-          $(ARCHDIR)/utils.o \
-          $(ARCHDIR)/socketp.o
+OBJECTS = ./$(ARCHDIR)/$(VERSIONOBJECT) \
+          ./$(ARCHDIR)/socket.o \
+          ./$(ARCHDIR)/io.o \
+          ./$(ARCHDIR)/utils.o \
+          ./$(ARCHDIR)/socketp.o
 
 all: $(ATARGET)
 
-$(ATARGET): $(ARCHDIR) $(LOCALLIBS) $(OBJECTS)
+$(ATARGET): ./$(ARCHDIR) $(LOCALLIBS) $(OBJECTS)
 	$(CC) $(LDFLAGS) -o $(ATARGET) $(OBJECTS) $(LOCALLIBS) $(SYSLIBS)
 
 tags: TAGS
 TAGS: $(PROGSOURCES) $(HEADERS)
 	etags $(PROGSOURCES) $(HEADERS)
 
-$(ARCHDIR)/%.o : %.c
+./$(ARCHDIR)/%.o : %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 
-$(ARCHDIR):
-	mkdir $(ARCHDIR)
+./$(ARCHDIR):
+	mkdir ./$(ARCHDIR)
 
 $(VERSIONOBJECT): $(PROGSOURCES)
 
