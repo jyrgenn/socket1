@@ -49,11 +49,8 @@ ARCHDIR =
 ### system:
 
 ### 4.4 BSD-derived systems (tested on FreeBSD, but probably works
-### for other BSDs)
+### for other BSDs, including Mac OS X)
 SWITCHES = $(GCCOPTS)
-
-### Darwin (MacOS X, actually) 
-#SWITCHES = -DHAS_NO_SOCKLEN_T $(GCCOPTS)
 
 ### Linux (Kernel 2.2.13, SuSE 6.2)
 #SWITCHES = -D_GNU_SOURCE $(GCCOPTS)
