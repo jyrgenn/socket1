@@ -1,0 +1,416 @@
+Date: Sat, 16 Mar 2002 18:28:47 +0100
+From: Guus Sliepen <guus@sliepen.warande.net>
+To: Juergen Nickelsen <ni@jnickelsen.de>
+Subject: IPv6 support for socket.
+
+Hello Jürgen,
+
+I hacked socket 1.1 to support IPv6. You can find the patch attached.
+If you weren't already working on it for 2.0, it might be of use to you.
+
+-- 
+Met vriendelijke groet / with kind regards,
+  Guus Sliepen <guus@sliepen.warande.net>
+diff -urN socket-1.1.orig/globals.h socket-1.1/globals.h
+--- socket-1.1.orig/globals.h	Sat Mar 16 18:24:33 2002
++++ socket-1.1/globals.h	Sat Mar 16 18:05:37 2002
+@@ -22,8 +22,8 @@
+ #define A(args) ()
+ #endif
+ 
+-int create_server_socket A((int port, int queue_length)) ;
+-int create_client_socket A((char **hostname, int port)) ;
++int create_server_socket A((char *port, int queue_length)) ;
++int create_client_socket A((char *hostname, char *port)) ;
+ int resolve_service A((char *name_or_number, char *protocol, char **name)) ;
+ void catchsig A((int sig)) ;
+ void usage A((void)) ;
+@@ -54,3 +54,4 @@
+ extern int active_socket ;
+ extern char *progname ;
+ extern char *socket_siglist[] ;
++extern int addressfamily ;
+Binary files socket-1.1.orig/io.o and socket-1.1/io.o differ
+Binary files socket-1.1.orig/siglist.o and socket-1.1/siglist.o differ
+Binary files socket-1.1.orig/so_release.o and socket-1.1/so_release.o differ
+Binary files socket-1.1.orig/socket and socket-1.1/socket differ
+diff -urN socket-1.1.orig/socket.1 socket-1.1/socket.1
+--- socket-1.1.orig/socket.1	Thu Feb  8 23:53:40 1996
++++ socket-1.1/socket.1	Sat Mar 16 18:22:44 2002
+@@ -11,7 +11,7 @@
+ .SH SYNOPSIS
+ .B socket
+ [
+-.B \-bcfqrvw
++.B \-46bcfqrvw
+ ]
+ [
+ .B \-p
+@@ -21,7 +21,7 @@
+ .br
+ .B socket
+ [
+-.B \-bcfqrvw
++.B \-46bcfqrvw
+ ]
+ [
+ .B \-p
+@@ -37,17 +37,24 @@
+ creates an Internet domain TCP socket and connects it to stdin and stdout.
+ The 
+ .I host
+-argument can be an Internet number in dot-notation (like
+-``130.149.28.10'') or a domain name. In this case it must be possible
++argument can be an IPv4 address (like ``130.149.28.10''),
++an IPv6 addres (like ``fec0::1:2d0:b7ff:fe18:ca14'')
++or a domain name. In the latter case it must be possible
+ to resolve the name to a valid Internet address with
+-.IR gethostbyname (3).
++.IR getaddrinfo (3).
+ The 
+ .I port
+ argument can be a port number or a service name which can be mapped to
+ a port number by
+-.IR getservbyname (3).
++.IR getaddrinfo (3).
+ .SH OPTIONS
+ .TP
++.BR "\-4 " (ipv4)
++Force use of IPv4 for listening and outgoing sockets.
++.TP
++.BR "\-6 " (ipv6)
++Force use of IPv6 for listening and outgoing sockets.
++.TP
+ .BR "\-b " (background)
+ The program forks itself into the background, detaches from its
+ controlling tty, closes the file descriptors associated with the tty,
+@@ -109,10 +116,10 @@
+ .br
+ The command
+ .IP
+-\fCsocket \-sl 3425\fP
++\fCsocket \-6sl 3425\fP
+ .LP
+ creates a server socket on port 3425 on the local host and waits for a
+-connection.
++connection from an IPv6 capable host.
+ After a connection has been closed, a new connection is accepted. 
+ .br
+ The command
+@@ -147,8 +154,7 @@
+ .BR bind (2),
+ .BR connect (2), 
+ .BR socket (2),
+-.BR gethostbyname (3),
+-.BR getservbyname (3)
++.BR getaddrinfo (3)
+ .SH BUGS
+ \fCsocket \-p\fP terminates due to a SIGPIPE signal when there is more
+ data from the socket available than the executed program wants to
+@@ -156,6 +162,8 @@
+ .LP
+ Please report any other bugs to the author.
+ .SH VERSION
+-This manual page describes Socket\-1.1.
++This manual page describes Socket\-1.1+IPv6.
+ .SH AUTHOR
+ Juergen Nickelsen <nickel@cs.tu-berlin.de>
++.PP
++IPv6 support by Guus Sliepen <guus@sliepen.warande.net>
+diff -urN socket-1.1.orig/socket.c socket-1.1/socket.c
+--- socket-1.1.orig/socket.c	Sat Mar 16 18:24:33 2002
++++ socket-1.1/socket.c	Sat Mar 16 18:04:26 2002
+@@ -37,10 +37,11 @@
+ char *progname ;		/* name of the game */
+ char *pipe_program = NULL ;	/* program to execute in two-way pipe */
+ int WaitForever = 0;            /* wait forever for socket on connection refused */
++int addressfamily = AF_UNSPEC ;	/* address family of network protocol */
+ 
+-void server A((int port, char *service_name)) ;
++void server A((char *port)) ;
+ void handle_server_connection A((void)) ;
+-void client A((char *host, int port, char *service_name)) ;
++void client A((char *host, char *port)) ;
+ 
+ int main(argc, argv)
+ int argc ;
+@@ -50,9 +51,6 @@
+     int opt ;			/* option character */
+     int error = 0 ;		/* usage error occurred */
+     extern int optind ;		/* from getopt() */
+-/*    char *host ;  */		/* name of remote host */
+-    int port ;			/* port number for socket */
+-    char *service_name ;	/* name of service for port */
+ 
+     /* print version ID if requested */
+     if (argv[1] && !strcmp(argv[1], "-version")) {
+@@ -65,7 +63,7 @@
+     if ((cp = strrchr(progname, '/'))) progname = cp + 1 ;
+ 
+     /* parse options */
+-    while ((opt = getopt(argc, argv, "bcflp:qrsvWw?")) != -1) {
++    while ((opt = getopt(argc, argv, "46bcflp:qrsvWw?")) != -1) {
+ 	switch (opt) {
+ 	  case 'f':
+ 	    forkflag = 1 ;
+@@ -97,6 +95,12 @@
+ 	  case 'b':
+ 	    backgflag = 1 ;
+ 	    break ;
++          case '4':
++            addressfamily = AF_INET ;
++            break;
++          case '6':
++            addressfamily = AF_INET6 ;
++            break;
+ 	  case 'W':
+ 	    WaitForever = 1 ;
+ 	  default:
+@@ -132,30 +136,21 @@
+     /* set up signal handling */
+     init_signals() ;
+ 
+-    /* get port number */
+-    port = resolve_service(argv[optind + 1 - serverflag],
+-			   "tcp", &service_name) ;
+-    if (port < 0) {
+-	fprintf(stderr, "%s: unknown service\n", progname) ;
+-	exit(5) ;
+-    }
+-
+     /* and go */
+     if (serverflag) {
+ 	if (backgflag) {
+ 	    background() ;
+ 	}
+-	server(port, service_name) ;
++	server(argv[optind]) ;
+     } else {
+-	client(argv[optind], port, service_name) ;
++	client(argv[optind], argv[optind + 1]) ;
+     }	       
+     exit(0) ;
+ }
+ 
+ 
+-void server(port, service_name)
+-int port ;
+-char *service_name ;
++void server(port)
++char *port ;
+ {
+     int socket_handle, alen ;
+ 
+@@ -166,16 +161,12 @@
+ 	exit(1) ;
+     }
+     if (verboseflag) {
+-	fprintf(stderr, "listening on port %d", port) ;
+-	if (service_name) {
+-	    fprintf(stderr, " (%s)", service_name) ;
+-	}
+-	fprintf(stderr, "\n") ;
++	fprintf(stderr, "listening on port %s\n", port) ;
+     }
+ 
+     /* server loop */
+     do {
+-	struct sockaddr_in sa ;
++	struct sockaddr_storage sa ;
+ 	    
+ 	alen = sizeof(sa) ;
+ 
+@@ -187,22 +178,13 @@
+ 	} else {
+ 	    /* if verbose, get name of peer and give message */
+ 	    if (verboseflag) {
+-		struct hostent *he ;
+-		long norder ;
+-		char dotted[20] ;
+-
+-		he = gethostbyaddr((char *) &sa.sin_addr.s_addr,
+-				   sizeof(sa.sin_addr.s_addr), AF_INET) ;
+-		if (!he) {
+-		    norder = htonl(sa.sin_addr.s_addr) ;
+-		    sprintf(dotted, "%ld.%ld.%ld.%ld",
+-			    (norder >> 24) & 0xff,
+-			    (norder >> 16) & 0xff,
+-			    (norder >>  8) & 0xff,
+-			    norder & 0xff) ;
+-		}
+-		fprintf(stderr, "connection from %s\n",
+-			(he ? he->h_name : dotted)) ;
++                char hostname[NI_MAXHOST], servname[NI_MAXSERV];
++
++		if(!getnameinfo((struct sockaddr *) &sa, alen, hostname, sizeof(hostname), servname, sizeof(servname), 0)) {
++                  fprintf(stderr, "connection from %s port %s\n", hostname, servname);
++                } else {
++                  perror2("getnameinfo");
++                }
+ 	    }
+ 	    if (forkflag) {
+ 		switch (fork()) {
+@@ -241,14 +223,13 @@
+ }
+ 
+ 
+-void client(host, port, service_name)
++void client(host, port)
+ char *host ;
+-int port ;
+-char *service_name ;
++char *port ;
+ {
+     /* get connection */
+     while (1) {
+-	active_socket = create_client_socket(&host, port) ;
++	active_socket = create_client_socket(host, port) ;
+ 	if (active_socket >= 0 || !WaitForever || errno != ECONNREFUSED) break;
+ 	    sleep( 60 );
+     }
+@@ -256,15 +237,11 @@
+ 	perror2("client socket") ;
+ 	exit(errno) ;
+     } else if (active_socket == -2) {
+-	fprintf(stderr, "%s: unknown host %s\n", progname, host) ;
++	fprintf(stderr, "%s: unknown host %s or port %s\n", progname, host, port) ;
+ 	exit(13) ;
+     }
+     if (verboseflag) {
+-	fprintf(stderr, "connected to %s port %d", host, port) ;
+-	if (service_name) {
+-	    fprintf(stderr, " (%s)", service_name) ;
+-	}
+-	fprintf(stderr, "\n") ;
++	fprintf(stderr, "connected to %s port %s\n", host, port) ;
+     }
+ 
+     /* open pipes to program if requested */
+Binary files socket-1.1.orig/socket.o and socket-1.1/socket.o differ
+diff -urN socket-1.1.orig/socketp.c socket-1.1/socketp.c
+--- socket-1.1.orig/socketp.c	Sat Mar 16 18:24:33 2002
++++ socket-1.1/socketp.c	Sat Mar 16 18:05:52 2002
+@@ -25,24 +25,33 @@
+  * create a server socket on PORT accepting QUEUE_LENGTH connections
+  */
+ int create_server_socket(port, queue_length)
+-int port ;
++char *port ;
+ int queue_length ;
+ {
+-    struct sockaddr_in sa ;
++    struct addrinfo hint, *ai ;
+     int s;
+ 
+-    if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+-	return -1 ;
++    memset(&hint, 0, sizeof(hint)) ;
++    hint.ai_flags = AI_PASSIVE ;
++    hint.ai_family = addressfamily ;
++    hint.ai_socktype = SOCK_STREAM ;
++
++    if(getaddrinfo(NULL, port, &hint, &ai) && !ai) {
++        return -1 ;
+     }
+ 
+-    bzero((char *) &sa, sizeof(sa)) ;
+-    sa.sin_family = AF_INET ;
+-    sa.sin_addr.s_addr = htonl(INADDR_ANY) ;
+-    sa.sin_port = htons(port) ;
++    if ((s = socket(ai->ai_family, SOCK_STREAM, 0)) < 0) {
++        freeaddrinfo(ai);
++	return -1 ;
++    }
+ 
+-    if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
++    if (bind(s, ai->ai_addr, ai->ai_addrlen) < 0) {
++        freeaddrinfo(ai);
+ 	return -1 ;
+     }
++
++    freeaddrinfo(ai);
++
+     if (listen(s, 1) < 0) {
+ 	return -1 ;
+     }
+@@ -53,40 +62,34 @@
+ 
+ /* create a client socket connected to PORT on HOSTNAME */
+ int create_client_socket(hostname, port)
+-char **hostname ;
+-int port ;
++char *hostname ;
++char *port ;
+ {
+-    struct sockaddr_in sa ;
+-    struct hostent *hp ;
++    struct addrinfo hint, *ai, *aip ;
+     int s ;
+-    long addr ;
+ 
+-
+-    bzero(&sa, sizeof(sa)) ;
+-    if ((addr = inet_addr(*hostname)) != -1) {
+-	/* is Internet addr in octet notation */
+-	bcopy(&addr, (char *) &sa.sin_addr, sizeof(addr)) ; /* set address */
+-	sa.sin_family = AF_INET ;
+-    } else {
+-	/* do we know the host's address? */
+-	if ((hp = gethostbyname(*hostname)) == NULL) {
+-	    return -2 ;
+-	}
+-	*hostname = hp->h_name ;
+-	bcopy(hp->h_addr, (char *) &sa.sin_addr, hp->h_length) ;
+-	sa.sin_family = hp->h_addrtype ;
+-    }
+-
+-    sa.sin_port = htons((u_short) port) ;
+-
+-    if ((s = socket(sa.sin_family, SOCK_STREAM, 0)) < 0) { /* get socket */
+-	return -1 ;
+-    }
+-    if (connect(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {                  /* connect */
+-	close(s) ;
+-	return -1 ;
+-    }
+-    return s ;
++    memset(&hint, 0, sizeof(hint)) ;
++    hint.ai_family = addressfamily ;
++    hint.ai_socktype = SOCK_STREAM ;
++
++    if(getaddrinfo(hostname, port, &hint, &ai) && !ai) {
++        return -1 ;
++    }
++
++    for(aip = ai; aip; aip = aip->ai_next) {
++        if ((s = socket(aip->ai_family, SOCK_STREAM, 0)) < 0) { /* get socket */
++	    continue ;
++        }
++        if (connect(s, aip->ai_addr, aip->ai_addrlen) < 0) {                  /* connect */
++	    close(s) ;
++	    continue ;
++        }
++        freeaddrinfo(ai) ;
++        return s ;
++    }
++    
++    freeaddrinfo(ai) ;
++    return -1 ;
+ }
+ 
+ /* return the port number for service NAME_OR_NUMBER. If NAME is non-null,
+Binary files socket-1.1.orig/socketp.o and socket-1.1/socketp.o differ
+diff -urN socket-1.1.orig/utils.c socket-1.1/utils.c
+--- socket-1.1.orig/utils.c	Sat Mar 16 18:24:33 2002
++++ socket-1.1/utils.c	Sat Mar 16 18:17:12 2002
+@@ -45,7 +45,7 @@
+ void usage()
+ {
+     static char ustring[] =
+-	"Usage: %s [-bclqrvw] [-p prog] [-s | host] port\n" ;
++	"Usage: %s [-46bclqrvw] [-p prog] [-s | host] port\n" ;
+ 
+     fprintf(stderr, ustring, progname) ;
+ }
+Binary files socket-1.1.orig/utils.o and socket-1.1/utils.o differ
+application/pgp-signature           [Click mouse-2 to save to a file]
