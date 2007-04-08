@@ -1,5 +1,16 @@
 -*-text-*-
 
+Changes in Socket version 1.5 by Boris Nikolaus:
+
+  - -H option for half-close support of TCP connections
+
+  - -Q option for TCP RESET on SIGINT and SIGTERM
+
+  - IPv6 support added, -4 and -6 options for manual selection of
+    protocol version
+
+  - -h option for usage
+
 Changes in Socket version 1.4:
 
   - no more tab characters in the sources

@@ -3,7 +3,7 @@
 
 /*-
  * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005
- * Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
+ * Juergen Nickelsen <ni@jnickelsen.de> and Boris Nikolaus. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -46,10 +46,20 @@ int do_read_write(int from, int to)
 {
     int size ;
     char input_buffer[BUFSIZ] ;
-    
+    char* buffer;
+    char buffer2[2 * BUFSIZ] ;  /* expanding lf's to crlf's can
+                                 * make the block twice as big at most */
+    int written ;
+
     if ((size = read(from, input_buffer, BUFSIZ)) == -1) {
+        if (errno == EINTR) {
+            return 3 ;
+        }
         perror2("read") ;
-        return -1 ;
+        if (to == active_socket && resetflag) {
+            reset_socket_on_close(to) ;
+        }
+        return 2 ;
     }
     if (size == 0) {            /* end-of-file condition */
         if (from == active_socket) {
@@ -57,32 +67,37 @@ int do_read_write(int from, int to)
             if (verboseflag) {
                 fprintf(stderr, "connection closed by peer\n") ;
             }
-            return -1 ;
+            if (halfcloseflag && !readonlyflag) {
+                close(to) ;
+                writeonlyflag = 1 ;
+                return -1 ;
+            }
+            return 0 ;
         } else {
             if (quitflag) {
                 /* we close connection later */
                 if (verboseflag) {
                     fprintf(stderr, "connection closed\n") ;
                 }
-                return -1 ;
-            } else if (verboseflag) {
+                return 0 ;
+            }
+            if (verboseflag) {
                 fprintf(stderr, "end of input on stdin\n") ;
             }
-            readonlyflag = 1 ;
-            return 1 ;
+            if (halfcloseflag && !writeonlyflag) {
+                shutdown(to, SHUT_WR) ;
+                readonlyflag = 1 ;
+                return -1 ;
+            }
+            if (!halfcloseflag) {
+                readonlyflag = 1 ;
+                return -1 ;
+            }
+            return 0 ;
         }
     }
-    return do_write(input_buffer, size, to) ;
 
-}
-
-/* write the buffer; in successive pieces, if necessary. */
-int do_write(char *buffer, int size, int to)
-{
-    char buffer2[2 * BUFSIZ] ;  /* expanding lf's to crlf's can
-                                 * make the block twice as big at most */
-    int written ;
-
+    buffer = input_buffer ;
     if (crlfflag) {
         if (to == active_socket) {
             add_crs(buffer, buffer2, &size) ;
@@ -94,26 +109,34 @@ int do_write(char *buffer, int size, int to)
     while (size > 0) {
         written = write(to, buffer, size) ;
         if (written == -1) {
+            if (errno == EINTR) {
+                return 3 ;
+            }
             /* this should not happen */
             perror2("write") ;
             fprintf(stderr, "%s: error writing to %s\n",
                     progname,
                     to == active_socket ? "socket" : "stdout") ;
-            return -1 ;
+            if (from == active_socket && resetflag) {
+                reset_socket_on_close(from) ;
+            }
+            return 2 ;
         }
         size -= written ;
         buffer += written ;
     }
-    return 1 ;
+    return -1 ;
 }
 
 /* all IO to and from the socket is handled here. The main part is
  * a loop around select(2). */
-void do_io(void)
+int do_io(void)
 {
     fd_set readfds ;
     int fdset_width ;
     int selret ;
+    int retval ;
+    int ioret ;
 
     fdset_width = (IN > active_socket ? IN : active_socket) + 1 ;
     while (1) {                 /* this loop is exited sideways */
@@ -133,7 +156,7 @@ void do_io(void)
             /* EINTR happens when the process is stopped */
             if (selret < 0 && errno != EINTR) {
                 perror2("select") ;
-                exit(1) ;
+                return 1 ;
             }
             alarm(0) ;
             if (alarmsig_occured) {
@@ -143,15 +166,21 @@ void do_io(void)
 
         /* do the appropriate read and write */
         if (FD_ISSET(active_socket, &readfds)) {
-            if (do_read_write(active_socket, OUT) < 0) {
+            ioret = do_read_write(active_socket, OUT) ;
+            if (ioret >= 0) {
+                retval = ioret ;
                 break ;
             }
-        } else {
-            if (do_read_write(IN, active_socket) < 0) {
+        }
+        if (FD_ISSET(IN, &readfds)) {
+            ioret = do_read_write(IN, active_socket) ;
+            if (ioret >= 0) {
+                retval = ioret ;
                 break ;
             }
         }
     }
+    return retval ;
 }
 
 /* EOF */

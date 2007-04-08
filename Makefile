@@ -1,4 +1,4 @@
-# Makefile for Socket-1.4.
+# Makefile for Socket-1.5.
 #
 # Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005, 2006
 # Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
@@ -43,27 +43,27 @@ CFLAGS = $(SWITCHES) -g
 LDFLAGS = $(SWITCHES) # -s
 # To use an architecture-specific compile directory (inside of the
 # source directory):
-ARCHDIR = 
+ARCHDIR = .
 
 ### You may need to uncomment some lines below for your operating
 ### system:
 
 ### 4.4 BSD-derived systems (tested on FreeBSD, but probably works
 ### for other BSDs, including Mac OS X)
-SWITCHES = $(GCCOPTS)
+SWITCHES = $(GCCOPTS) -DUSE_INET6
 
 ### Linux (Kernel 2.2.13, SuSE 6.2)
-#SWITCHES = -D_GNU_SOURCE $(GCCOPTS)
+#SWITCHES = $(GCCOPTS) -D_GNU_SOURCE -DUSE_INET6
 
 ### Solaris 7
-#SWITCHES = -Dsys_siglist=_sys_siglist
+#SWITCHES = -Dsys_siglist=_sys_siglist -DUSE_INET6
 #SYSLIBS = -lnsl -lsocket
 
 ### IRIX 6.5
-#SWITCHES = -DHAS_NO_SOCKLEN_T
+#SWITCHES = -DHAS_NO_SOCKLEN_T -DUSE_INET6
 
 ### AIX 3.2
-# SWITCHES = -DHAS_NO_SOCKLEN_T
+# SWITCHES = -DHAS_NO_SOCKLEN_T -DUSE_INET6
 
 
 ### It should not be necessary to change anything below this line.
