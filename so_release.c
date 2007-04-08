@@ -26,12 +26,13 @@
  *      $Id$
  */
 
+#include <string.h>
 #include "globals.h"
 
 char *so_release (void)
 {
     static char release[] =
-        "Socket-1.unreleased (2000-00-00 by ni@jnickelsen.de)";
+        "$Id$";
     
-    return release ;
+    return strchr(release, 'S') ;
 }
