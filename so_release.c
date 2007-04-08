@@ -32,7 +32,8 @@
 char *so_release (void)
 {
     static char release[] =
-        "$Id$";
+        /* Insert $ Id : $ to make ident(1) work. */
+        "@(#)Socket-1.unreleased (2000-00-00 by ni@jnickelsen.de)";
     
     return strchr(release, 'S') ;
 }
