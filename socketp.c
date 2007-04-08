@@ -46,7 +46,7 @@
 int create_server_socket(char *bind_address, char *service, int queue_length,
                          struct sockaddr *addr, socklen_t *addrlen)
 {
-#ifdef USE_INET6
+#ifndef NO_INET6
     struct addrinfo hints ;
     struct addrinfo *res ;
     struct addrinfo *ressave ;
@@ -97,7 +97,7 @@ int create_server_socket(char *bind_address, char *service, int queue_length,
     }
     freeaddrinfo(ressave) ;
     return s ;
-#else
+#else  /* NO_INET6 */
     struct sockaddr_in sa ;
     int service_result ;
     uint32_t address_result ;
@@ -147,7 +147,7 @@ int create_server_socket(char *bind_address, char *service, int queue_length,
     memcpy(addr, &sa, *addrlen) ;
 
     return s ;
-#endif
+#endif /* NO_INET6 */
 }
 
 
@@ -155,7 +155,7 @@ int create_server_socket(char *bind_address, char *service, int queue_length,
 int create_client_socket(char *bind_address, char *host, char *service,
                          struct sockaddr *addr, socklen_t *addrlen)
 {
-#ifdef USE_INET6
+#ifndef NO_INET6
     struct addrinfo hints ;
     struct addrinfo *res ;
     struct addrinfo *ressave ;
@@ -222,7 +222,7 @@ int create_client_socket(char *bind_address, char *host, char *service,
     }
     freeaddrinfo(ressave) ;
     return s ;
-#else
+#else /* NO_INET6 */
     struct sockaddr_in sa ;
     int s ;
     uint32_t address_result ;
@@ -286,7 +286,7 @@ int create_client_socket(char *bind_address, char *host, char *service,
     }
     memcpy(addr, &sa, *addrlen) ;
     return s ;
-#endif
+#endif /* NO_INET6 */
 }
 
 void reset_socket_on_close(int sd)
@@ -298,7 +298,7 @@ void reset_socket_on_close(int sd)
     setsockopt(sd, SOL_SOCKET, SO_LINGER, (char*)&linger, sizeof(linger)) ;
 }
 
-#ifdef USE_INET6
+#ifndef NO_INET6
 /* resolve IP address (decimal dotted or hostname) and service (port number or
  * service name)
  * return a list of addresses
@@ -335,7 +335,7 @@ int resolve_hostname_and_service(char *host, char *service,
     }
     return 0 ;
 }
-#else
+#else  /* NO_INET6 */
 /* resolve IP address for string (decimal dotted or hostname)
  * return address or INADDR_NONE if invalid
  */
@@ -385,13 +385,13 @@ int resolve_service(char *name_or_number, char *protocol)
         return ntohs(se->s_port) ;
     }
 }
-#endif
+#endif /* NO_INET6 */
 
 /* return IP address string of a sockaddr.
  */
 char *get_ipaddr(struct sockaddr *sa, socklen_t salen)
 {
-#ifdef USE_INET6
+#ifndef NO_INET6
     static char buffer[256] ;
 
     if (getnameinfo(sa, salen, buffer, sizeof(buffer), NULL, 0,
@@ -399,12 +399,12 @@ char *get_ipaddr(struct sockaddr *sa, socklen_t salen)
         return buffer ;
     }
     return "unknown" ;
-#else
+#else  /* NO_INET6 */
     struct in_addr addr ;
 
     addr = ((struct sockaddr_in *) sa)->sin_addr ;
     return inet_ntoa(addr) ;
-#endif
+#endif /* NO_INET6 */
 }
 
 /* return host name of a sockaddr, NULL if no hostname associated with the
@@ -412,7 +412,7 @@ char *get_ipaddr(struct sockaddr *sa, socklen_t salen)
  */
 char *get_hostname(struct sockaddr *sa, socklen_t salen)
 {
-#ifdef USE_INET6
+#ifndef NO_INET6
     static char buffer[256] ;
 
     if (noreverseflag)
@@ -422,7 +422,7 @@ char *get_hostname(struct sockaddr *sa, socklen_t salen)
         return buffer ;
     }
     return NULL ;
-#else
+#else  /* NO_INET6 */
     struct hostent *he ;
     struct in_addr addr ;
 
@@ -434,14 +434,14 @@ char *get_hostname(struct sockaddr *sa, socklen_t salen)
         return he->h_name ;
     }
     return NULL ;
-#endif
+#endif /* NO_INET6 */
 }
 
 /* return port number string of a sockaddr.
  */
 char *get_port(struct sockaddr *sa, socklen_t salen)
 {
-#ifdef USE_INET6
+#ifndef NO_INET6
     static char buffer[16] ;
 
     if (getnameinfo(sa, salen, NULL, 0, buffer, sizeof(buffer),
@@ -449,13 +449,13 @@ char *get_port(struct sockaddr *sa, socklen_t salen)
         return buffer ;
     }
     return "unknown" ;
-#else
+#else  /* NO_INET6 */
     static char buffer[16] ;
 
     snprintf(buffer, sizeof(buffer), "%u",
              ntohs(((struct sockaddr_in *) sa)->sin_port)) ;
     return buffer ;
-#endif
+#endif /* NO_INET6 */
 }
 
 /* return service name of a sockaddr, NULL if no service name is associated
@@ -463,7 +463,7 @@ char *get_port(struct sockaddr *sa, socklen_t salen)
  */
 char *get_service(struct sockaddr *sa, socklen_t salen, char *protocol)
 {
-#ifdef USE_INET6
+#ifndef NO_INET6
     static char buffer[16] ;
 
     if (getnameinfo(sa, salen, NULL, 0, buffer, sizeof(buffer), 0) == 0 &&
@@ -471,7 +471,7 @@ char *get_service(struct sockaddr *sa, socklen_t salen, char *protocol)
         return buffer ;
     }
     return NULL ;
-#else
+#else  /* NO_INET6 */
     struct servent *se ;
 
     if ((se = getservbyport(((struct sockaddr_in *) sa)->sin_port,
@@ -479,7 +479,7 @@ char *get_service(struct sockaddr *sa, socklen_t salen, char *protocol)
         return se->s_name ;
     }
     return NULL ;
-#endif
+#endif /* NO_INET6 */
 }
 
 /* return dotted notation for an IPv4 address in host byte order

@@ -77,14 +77,14 @@ int create_server_socket(char *bind_address, char *service, int queue_length,
 int create_client_socket(char *bind_address, char *host, char *service,
                          struct sockaddr *addr, socklen_t *addrlen) ;
 void reset_socket_on_close(int sd) ;
-#ifdef USE_INET6
+#ifndef NO_INET6
 int resolve_hostname_and_service(char *host, char *service,
                                  struct addrinfo *hints,
                                  struct addrinfo **res) ;
-#else
+#else  /* NO_INET6 */
 uint32_t resolve_hostname(char *address_or_name) ;
 int resolve_service(char *name_or_number, char *protocol) ;
-#endif
+#endif /* NO_INET6 */
 char *get_ipaddr(struct sockaddr *sa, socklen_t salen) ;
 char *get_hostname(struct sockaddr *sa, socklen_t salen) ;
 char *get_port(struct sockaddr *sa, socklen_t salen) ;

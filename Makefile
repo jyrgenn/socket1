@@ -50,21 +50,16 @@ ARCHDIR = .
 
 ### 4.4 BSD-derived systems (tested on FreeBSD, but probably works
 ### for other BSDs, including Mac OS X)
-SWITCHES = $(GCCOPTS) -DUSE_INET6
+SWITCHES = $(GCCOPTS)
 
 ### Linux (Kernel 2.2.13, SuSE 6.2)
-#SWITCHES = $(GCCOPTS) -D_GNU_SOURCE -DUSE_INET6
+#SWITCHES = $(GCCOPTS) -D_GNU_SOURCE
 
 ### Solaris 7
-#SWITCHES = -Dsys_siglist=_sys_siglist -DUSE_INET6
+#SWITCHES = -Dsys_siglist=_sys_siglist
 #SYSLIBS = -lnsl -lsocket
 
-### IRIX 6.5
-#SWITCHES = -DHAS_NO_SOCKLEN_T -DUSE_INET6
-
-### AIX 3.2
-# SWITCHES = -DHAS_NO_SOCKLEN_T -DUSE_INET6
-
+### Other systems: use -DNO_INET6 for systems without IPv6 support.
 
 ### It should not be necessary to change anything below this line.
 ##################################################################

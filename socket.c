@@ -188,18 +188,18 @@ int main(int argc, char *argv[])
     if (ipv4 && !ipv6) {
         protocol_family = AF_INET ;
     } else if (ipv6 && !ipv4) {
-#ifdef USE_INET6
+#ifndef NO_INET6
         protocol_family = AF_INET6 ;
-#else
+#else  /* NO_INET6 */
         fprintf(stderr, "%s: IPv6 not available\n", progname) ;
         exit(15) ;
-#endif
+#endif /* NO_INET6 */
     } else {
-#ifdef USE_INET6
+#ifndef NO_INET6
         protocol_family = AF_UNSPEC ;
-#else
+#else  /* NO_INET6 */
         protocol_family = AF_INET ;
-#endif
+#endif /* NO_INET6 */
     }
 
     /* set up signal handling */
