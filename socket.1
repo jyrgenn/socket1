@@ -1,9 +1,10 @@
 .\" -*- nroff -*-
 .ig
-This file is part of Socket-1.4.
+This file is part of Socket-1.5.
 
-Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005
-Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
+Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005, 2006
+Juergen Nickelsen <ni@jnickelsen.de> and Boris Nikolaus. All rights
+reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -34,7 +35,7 @@ socket \- create tcp socket and connect to stdin/out
 .SH SYNOPSIS
 .B socket
 [
-.B \-bcefnqrvvvw
+.B \-bcefhHnqQrvvw46
 ]
 [
 .B \-a
@@ -52,7 +53,7 @@ socket \- create tcp socket and connect to stdin/out
 .br
 .B socket
 [
-.B \-bcfnqrRvvvw
+.B \-bcfhHnqQrRvvw46
 ]
 [
 .B \-a
@@ -115,6 +116,15 @@ socket, but sent to the Socket program's original stderr.
 When a server connection has been accepted, a separate process is
 forked to handle the connection in background.
 .TP
+.BR "\-h " (help)
+Display the usage of the program.
+.TP
+.BR "\-H " (half-close)
+Enable half-close support. This allows to close both directions of the
+connection separately by sending an end-of-file indicator for each
+direction. The connection is assumed alive until both directions have
+been closed.
+.TP
 .BR "\-l " (loop)
 (only valid with
 .BR \-s )
@@ -142,6 +152,14 @@ execution.
 The connection is closed when an end-of-file condition occurs on standard
 input.
 .TP
+.BR "\-Q " "(reset on ungraceful quit)"
+When the program is terminated by SIGINT or SIGTERM or if reading from
+stdin or writing to stdout fails, the connection is closed
+ungracefully by sending a TCP RESET instead of TCP FIN. This allows to
+detect the abortion at the remote side where
+.IR read (2)
+returns a "Connection reset by peer" error.
+.TP
 .BR "\-r " "(read only)"
 No data is read from standard input and written to the socket.
 .TP
@@ -153,6 +171,17 @@ A server socket is created.
 A
 .I hostname 
 argument is not required.
+.TP
+.BR "\-T " (timeout)
+The specified
+.I timeout
+is applied to the
+.IR connect (2)
+and
+.IR select (2)
+system calls, such that the program is terminated when that timeout
+expires on connection setup or when reading from the socket or
+standard input.
 .TP
 .BR "\-v " (verbose)
 Each ``v'' in the options increases the verbosity level by one.
@@ -166,12 +195,14 @@ attempts.
 .BR "\-w " "(write only)"
 No data is read from the socket and written to the standard output.
 .TP
-.BR "\-T " (timeout)
-The specified
-.I timeout
-is applied to the connect(2) and select(2) system calls, such that
-the program is terminated when that timeout expires on connection
-setup or when reading from the socket or standard input.
+.BR "\-4 " (IPv4)
+Only use IP protocol version 4. (Default: Support both IPv4 and IPv6
+if IPv6 support has been compiled in).
+.TP
+.BR "\-6 " (IPv6)
+Only use IP protocol version 6 (if support has been compiled in).
+(Default: Support both IPv4 and IPv6 if IPv6 support has been compiled
+in).
 .TP
 .B \-version
 .B Socket
@@ -198,14 +229,11 @@ The command
 \fCsocket \-wslqvp "echo Socket! " 1938\fP
 .LP
 creates a server socket on port 1938 on the local host and waits for a
-connection.
-When a connection is accepted, the string "Socket!" is written to the
-socket.
-No data is read from the socket and written to the \fCfinger\fP
-program.
-The connection is closed when an end-of-file condition at the standard
-output of the program  occurs.
-Then a new connection is accepted.
+connection. When a connection is accepted, the string "Socket!" is
+written to the socket. No data is read from the socket and written to
+the \fCfinger\fP program. The connection is closed when an end-of-file
+condition at the standard output of the program occurs. Then a new
+connection is accepted.
 .SH DIAGNOSTICS
 Lots of diagnostics for failed system calls.
 .TP
@@ -218,7 +246,9 @@ terminates due to an error condition.
 .BR accept (2),
 .BR bind (2),
 .BR connect (2), 
+.BR listen (2), 
 .BR socket (2),
+.BR getaddrinfo (3),
 .BR gethostbyname (3),
 .BR getservbyname (3)
 .SH BUGS
@@ -229,6 +259,6 @@ data from the socket available than the child process wants to read.
 .LP
 Please report any other bugs to the author.
 .SH VERSION
-This manual page describes Socket\-1.4.
+This manual page describes Socket\-1.5.
 .SH AUTHOR
 Juergen Nickelsen <ni@jnickelsen.de>

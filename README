@@ -1,9 +1,71 @@
 Hey Emacs, this is -*- text -*-.
 
-README for Socket-1.4; see BLURB for a short description of the
-program. A longer descriptions follows below.
+README for Socket-1.5.
 
+For version 1.5, Boris Nikolaus has added three enhancements which
+are described in short here:
 
+1. Half-close support:
+
+   Half-close is a term from the TCP protocol which means that only
+   one direction of a TCP connection is closed. E. g., one side of the
+   communication can send a request and close its "write" side of the
+   socket immediately while the other side can still send data on the
+   socket until it closes its side, too.
+
+   Example:
+   (Output from the socket program is prefixed by ">", ^D means that
+   an EOF has been produced, most often be typing CTRL-D).
+
+   Server:                                  Client:
+   -------------------------------------------------------------------
+   socket -Hsv 12345
+   >Listening on port 12345
+                                            socket -Hv localhost 12345
+   >connection from ...			    >connected to 127.0.0.1...
+   Hello
+                                            >Hello
+   ^D                                       
+   >end of input on stdin                   >connection closed by peer
+                                            This direction is alive.
+   >This direction is alive.
+                                            ^D
+   >connection closed by peer               >end of input on stdin
+   (program terminated)                     (program terminated)
+
+2. Support for connection reset:
+
+   Beside of orderly closing a connection, TCP supports an ungraceful
+   abortion of a connection. In this case, TCP does not perform the
+   half-close for both directions but sends a "RESET" indication to
+   the remote side. The advantage of support for connection reset is
+   that the other side can know if the transmission has been aborted.
+
+   Example:
+   (Output from the socket program is prefixed by ">", ^C means that
+   a SIGINT has been produced, most often be typing CTRL-C).
+
+   Server:                                  Client:
+   -------------------------------------------------------------------
+   socket -Hsv 12345
+   >Listening on port 12345
+                                            socket -Hv localhost 12345
+   >connection from ...			    >connected to 127.0.0.1...
+   Hello
+                                            >Hello
+   ^C                                       
+   >caught signal, resetting connection     >socket: read: Connection
+                                            >reset by peer
+   (program terminated with                 (program terminated with
+   exit code 4)                             exit code 4)
+
+3. Support for IPv6:
+
+======================================================================
+README for Socket-1.4.
+
+See BLURB for a short description of the program. A longer
+descriptions follows below.
 
 ======================================================================
 README for Socket-1.3.
@@ -49,7 +111,6 @@ This release is also not very well tested. I appreciate any bug
 reports you may have.
 
 Juergen Nickelsen [ni@jnickelsen.de 1999-08-06]
-
 
 ======================================================================
 This is the README file for Socket-1.1.  

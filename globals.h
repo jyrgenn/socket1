@@ -2,8 +2,8 @@
  */
 
 /*-
- * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003
- * Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
+ * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005, 2006
+ * Juergen Nickelsen <ni@jnickelsen.de> and Boris Nikolaus. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,6 +33,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <setjmp.h>
 #ifndef HAS_NO_INTTYPES_H
 #include <inttypes.h>
@@ -63,7 +64,7 @@
 #define MAX_HOSTNAME_LEN 255    /* see RFC 1034 */
 
 #ifdef HAS_NO_SOCKLEN_T
-typedef int socklen_t;
+typedef int socklen_t ;
 #endif /* HAS_NO_SOCKLEN_T */
 
 /* Solaris has not INADDR_NONE */
@@ -71,26 +72,35 @@ typedef int socklen_t;
 #define INADDR_NONE 0xffffffff
 #endif /* !INADDR_NONE */
 
-int create_server_socket(int port, int queue_length) ;
-int create_client_socket(char **hostname, int port) ;
-int resolve_service(char *name_or_number, char *protocol, char **name) ;
-/* return host name or IP address string of ip_addr.
- */
-char *resolve_ipaddr(struct in_addr *ip_addr) ;
-uint32_t resolve_name(char *address_or_name) ;
+int create_server_socket(char *bind_address, char *service, int queue_length,
+                         struct sockaddr *addr, socklen_t *addrlen) ;
+int create_client_socket(char *bind_address, char *host, char *service,
+                         struct sockaddr *addr, socklen_t *addrlen) ;
+void reset_socket_on_close(int sd) ;
+#ifdef USE_INET6
+int resolve_hostname_and_service(char *host, char *service,
+                                 struct addrinfo *hints,
+                                 struct addrinfo **res) ;
+#else
+uint32_t resolve_hostname(char *address_or_name) ;
+int resolve_service(char *name_or_number, char *protocol) ;
+#endif
+char *get_ipaddr(struct sockaddr *sa, socklen_t salen) ;
+char *get_hostname(struct sockaddr *sa, socklen_t salen) ;
+char *get_port(struct sockaddr *sa, socklen_t salen) ;
+char *get_service(struct sockaddr *sa, socklen_t salen, char *protocol) ;
 void catchsig(int sig) ;
 void usage(void) ;
 int do_read_write(int from, int to) ;
-int do_write(char *buffer, int size, int to) ;
 char *so_release(void) ;
 void open_pipes(char *prog) ;
-void wait_for_children(int sig) ;
+int wait_for_children(void) ;
 void perror2(char *s) ;
 void add_crs(char *from, char *to, int *sizep) ;
 void strip_crs(char *from, char *to, int *sizep) ;
 void background(void) ;
 void init_sighandlers(void) ;
-void do_io(void) ;
+int do_io(void) ;
 void initialize_siglist(void) ;
 int is_number(char *s) ;
 char *dotted_addr(uint32_t addr) ;
@@ -108,9 +118,12 @@ extern int crlfflag ;
 extern int noreverseflag ;
 extern int active_socket ;
 extern int forkflag ;
+extern int halfcloseflag ;
+extern int resetflag ;
 extern unsigned int timeout ;
 extern char *progname ;
-extern uint32_t bind_addr ;
+extern char *bind_address ;
+extern int protocol_family ;
 #ifdef HAS_NO_SYS_ERRLIST
 extern char *sys_errlist[] ;
 #endif /* HAS_NO_SYS_ERRLIST */

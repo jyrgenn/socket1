@@ -3,7 +3,7 @@
 
 /*-
  * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005
- * Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
+ * Juergen Nickelsen <ni@jnickelsen.de> and Boris Nikolaus. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -51,7 +51,7 @@
 void usage(void)
 {
     static char ustring[] =
-        "Usage: %s [-bcelnqrRvvw] [-a bind-address] [-p prog] [-s | host] port\n" ;
+        "Usage: %s [-bcehHlnqQrRvvw] [-a bind-address] [-p prog] [-s | host] port\n" ;
 
     fprintf(stderr, ustring, progname) ;
 }
@@ -75,16 +75,33 @@ int is_number(char *s)
     return 1 ;
 }
 
+void handle_sigchild(int signal)
+{
+    wait_for_children() ;
+}
 
 void handle_sigalrm(int signal)
 {
+    int errno_save ;
+
+    errno_save = errno ;
     alarmsig_occured = 1 ;
-    fprintf(stderr, "read timeout, closing connection\n") ;
+    write(2, "read timeout, closing connection\n",
+        sizeof("read timeout, closing connection\n") - 1) ;
     if (!serverflag || forkflag) {
-        exit(3) ;
+        _exit(3) ;
     }
+    errno = errno_save ;
 }
 
+void handle_sigint_sigterm(int signal)
+{
+    write(2, "caught signal, resetting connection\n",
+        sizeof("caught signal, resetting connection\n") - 1) ;
+    reset_socket_on_close(active_socket) ;
+    close(active_socket) ;
+    _exit(4) ;
+}
 
 /* Set up signal handling. */
 void init_sighandler(int sig, void (*handler)(int))
@@ -97,7 +114,7 @@ void init_sighandler(int sig, void (*handler)(int))
     handler_act.sa_handler = handler ;
     handler_act.sa_mask = sigset ;
     handler_act.sa_flags = 0 ;
-    
+
 #else  /* HAS_NO_POSIX_SIGS */
 #ifdef SIG_SETMASK              /* only with BSD signals */
     static struct sigvec handler_vec = { handler, ~0, 0 } ;
@@ -117,10 +134,16 @@ void init_sighandler(int sig, void (*handler)(int))
 
 void init_sighandlers(void)
 {
-    init_sighandler(SIGCHLD, wait_for_children) ;
+    if (loopflag) {
+        init_sighandler(SIGCHLD, handle_sigchild) ;
+    }
     init_sighandler(SIGALRM, handle_sigalrm) ;
+    init_sighandler(SIGPIPE, SIG_IGN) ;
+    if (resetflag) {
+        init_sighandler(SIGINT, handle_sigint_sigterm) ;
+        init_sighandler(SIGTERM, handle_sigint_sigterm) ;
+    }
 }
-
 
 /* Put a variable into the environment. putenv() makes a copy of the
    string on some platforms (namely FreeBSD and Linux), but not on
@@ -148,31 +171,34 @@ void open_pipes(char *prog)
 {
     int from_cld[2] ;           /* from child process */
     int to_cld[2] ;             /* to child process */
-    struct sockaddr_in sa ;
-    socklen_t addrlen ;
-    char portstr[sizeof("65536")] ; /* enough for 16-bit number */
+    char sa_buffer[256] ;
+    socklen_t salen ;
 
     /* set environment variables for child process for peer and
      * local address and port */
-    addrlen = sizeof(sa) ;
-    if (getpeername(active_socket, (struct sockaddr *) &sa, &addrlen) < 0) {
+    salen = sizeof(sa_buffer) ;
+    if (getpeername(active_socket, (struct sockaddr *) &sa_buffer, &salen) <
+        0) {
         perror2("getpeername") ; /* should not happen */
         putenv_copy_2(ENVNAME_PEERADDR, "unknown") ;
         putenv_copy_2(ENVNAME_PEERPORT, "unknown") ;
     } else {
-        putenv_copy_2(ENVNAME_PEERADDR, resolve_ipaddr(&sa.sin_addr)) ;
-        sprintf(portstr, "%d", ntohs(sa.sin_port)) ;
-        putenv_copy_2(ENVNAME_PEERPORT, portstr) ;
+        putenv_copy_2(ENVNAME_PEERADDR,
+                      get_ipaddr((struct sockaddr *) &sa_buffer, salen)) ;
+        putenv_copy_2(ENVNAME_PEERPORT,
+                      get_port((struct sockaddr *) &sa_buffer, salen)) ;
     }
-    addrlen = sizeof(sa) ;
-    if (getsockname(active_socket, (struct sockaddr *) &sa, &addrlen) < 0) {
+    salen = sizeof(sa_buffer) ;
+    if (getsockname(active_socket, (struct sockaddr *) &sa_buffer, &salen) <
+        0) {
         perror2("getsockname") ; /* should not happen */
         putenv_copy_2(ENVNAME_OWNADDR, "unknown") ;
         putenv_copy_2(ENVNAME_OWNPORT, "unknown") ;
     } else {
-        putenv_copy_2(ENVNAME_OWNADDR, resolve_ipaddr(&sa.sin_addr)) ;
-        sprintf(portstr, "%d", ntohs(sa.sin_port)) ;
-        putenv_copy_2(ENVNAME_OWNPORT, portstr) ;
+        putenv_copy_2(ENVNAME_OWNADDR,
+                      get_ipaddr((struct sockaddr *) &sa_buffer, salen)) ;
+        putenv_copy_2(ENVNAME_OWNPORT,
+                      get_port((struct sockaddr *) &sa_buffer, salen)) ;
     }
 
     /* create pipes */
@@ -203,6 +229,8 @@ void open_pipes(char *prog)
             dup2(from_cld[1], 2) ;
             close(from_cld[1]) ;
         }
+        /* reenable signal handler */
+        init_sighandler(SIGPIPE, SIG_DFL) ;
         /* call program via sh */
         execl("/bin/sh", "sh", "-c", prog, NULL) ;
         perror2("exec /bin/sh") ;
@@ -213,12 +241,12 @@ void open_pipes(char *prog)
         perror2("fork") ;       /* fork failed */
         exit(errno) ;
       default:                  /* parent process */
-        /* connect stderr to pipe */
+        /* connect stdin to pipe */
         close(0) ;
         close(from_cld[1]) ;
         dup2(from_cld[0], 0) ;
         close(from_cld[0]) ;
-        /* connect stderr to pipe */
+        /* connect stdout to pipe */
         close(1) ;
         close(to_cld[0]) ;
         dup2(to_cld[1], 1) ;
@@ -227,19 +255,29 @@ void open_pipes(char *prog)
 }
 
 /* remove zombie child processes */
-void wait_for_children(int sig)
+int wait_for_children(void)
 {
+    int errno_save ;
     int status = 0 ;
 #ifndef ISC
     struct rusage rusage ;
 #endif
+    int retval ;
 
-    /* Just do a wait, forget result */
+    errno_save = errno ;
+
 #ifndef ISC
-    while (wait3(&status, WNOHANG, &rusage) > 0) ;
+    while (wait3(&status, WNOHANG, &rusage) > 0) {
+        retval = (!WIFEXITED(status) || WEXITSTATUS(status) != 0) ? 2 : 0;
+    }
 #else
-    while (waitpid(-1, &status, WNOHANG) > 0) ;
+    while (waitpid(-1, &status, WNOHANG) > 0) {
+        retval = (!WIFEXITED(status) || WEXITSTATUS(status) != 0) ? 2 : 0;
+    }
 #endif
+
+    errno = errno_save ;
+    return retval ;
 }
 
 /* expand LF characters to CRLF and adjust *sizep */
