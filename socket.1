@@ -53,7 +53,7 @@ socket \- create tcp socket and connect to stdin/out
 .br
 .B socket
 [
-.B \-bcfhHnqQrRvvw46
+.B \-46bcefhHlnqQrRvvw
 ]
 [
 .B \-a
@@ -97,6 +97,15 @@ This may lead to a connection failure in client mode if there is no
 route from the
 .I bind-address
 to the destination address.
+.TP
+.BR "\-4 " (IPv4)
+Only use IP protocol version 4. (Default: Support both IPv4 and IPv6
+if IPv6 support has been compiled in).
+.TP
+.BR "\-6 " (IPv6)
+Only use IP protocol version 6 (if support has been compiled in).
+(Default: Support both IPv4 and IPv6 if IPv6 support has been compiled
+in).
 .TP
 .BR "\-b " (background)
 The program forks itself into the background, detaches from its
@@ -194,15 +203,6 @@ attempts.
 .TP
 .BR "\-w " "(write only)"
 No data is read from the socket and written to the standard output.
-.TP
-.BR "\-4 " (IPv4)
-Only use IP protocol version 4. (Default: Support both IPv4 and IPv6
-if IPv6 support has been compiled in).
-.TP
-.BR "\-6 " (IPv6)
-Only use IP protocol version 6 (if support has been compiled in).
-(Default: Support both IPv4 and IPv6 if IPv6 support has been compiled
-in).
 .TP
 .B \-version
 .B Socket

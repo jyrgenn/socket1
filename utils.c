@@ -51,7 +51,7 @@
 void usage(void)
 {
     static char ustring[] =
-        "Usage: %s [-bcehHlnqQrRvvw] [-a bind-address] [-p prog] [-s | host] port\n" ;
+        "Usage: %s [-46bcefhHlnqQrRvvw] [-a bind-address] [-p prog] [-s | host] [-T timeout] port\n" ;
 
     fprintf(stderr, ustring, progname) ;
 }
