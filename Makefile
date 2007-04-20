@@ -59,6 +59,12 @@ SWITCHES = $(GCCOPTS)
 #SWITCHES = -Dsys_siglist=_sys_siglist
 #SYSLIBS = -lnsl -lsocket
 
+### Interix, SFU 3.5
+#SWITCHES = $(GCCOPTS) -DHAS_NO_INTTYPES_H -DHAS_NO_SOCKLEN_T -DNO_INET6 \
+#           -D_ALL_SOURCE -DUSE_WAITPID
+#CC = gcc
+
+
 ### Other systems: use -DNO_INET6 for systems without IPv6 support.
 
 ### It should not be necessary to change anything below this line.

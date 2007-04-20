@@ -266,7 +266,7 @@ int create_client_socket(char *bind_address, char *host, char *service,
     sa.sin_port = htons((uint16_t) service_result) ;
     if (verboseflag >= 2) {
         fprintf(stderr, "trying to connect to %s ... ",
-                get_ipaddr(&sa, sizeof(sa))) ;
+                get_ipaddr((struct sockaddr *) &sa, sizeof(sa))) ;
     }
     alarm(timeout) ;
     if (connect(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {

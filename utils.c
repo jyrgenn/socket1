@@ -259,14 +259,14 @@ int wait_for_children(void)
 {
     int errno_save ;
     int status = 0 ;
-#ifndef ISC
+#ifndef USE_WAITPID
     struct rusage rusage ;
 #endif
     int retval ;
 
     errno_save = errno ;
 
-#ifndef ISC
+#ifndef USE_WAITPID
     while (wait3(&status, WNOHANG, &rusage) > 0) {
         retval = (!WIFEXITED(status) || WEXITSTATUS(status) != 0) ? 2 : 0;
     }
