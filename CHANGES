@@ -1,6 +1,8 @@
 -*-text-*-
 
-Changes in Socket version 1.5 by Boris Nikolaus:
+Changes in Socket version 1.5
+
+  by Boris Nikolaus:
 
   - -H option for half-close support of TCP connections
 
@@ -10,6 +12,12 @@ Changes in Socket version 1.5 by Boris Nikolaus:
     protocol version
 
   - -h option for usage
+
+  - a few bug fixes
+
+  other changes:
+
+  - build support for Interix (Microsoft Windows Services For Unix)
 
 Changes in Socket version 1.4:
 

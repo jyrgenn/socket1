@@ -15,7 +15,7 @@ are described in short here:
 
    Example:
    (Output from the socket program is prefixed by ">", ^D means that
-   an EOF has been produced, most often be typing CTRL-D).
+   an EOF has been produced, most often by typing CTRL-D).
 
    Server:                                  Client:
    -------------------------------------------------------------------
@@ -60,6 +60,14 @@ are described in short here:
    exit code 4)                             exit code 4)
 
 3. Support for IPv6:
+
+   Full support for IPv6 has been integrated into the socket program:
+   Connections are now set up either using IPv6 or IPv4, depending on
+   the address (or address resolution). If the address resolution
+   results in both IPv4 and IPv6 addresses, the protocol version can
+   be manually selected by the "-4" or "-6" command line options.
+
+Boris Nikolaus [socket at boris.nikolaus.name 2006-05-08]
 
 ======================================================================
 README for Socket-1.4.
@@ -268,3 +276,4 @@ can only finger remote hosts.  fingerd.sh is RFC 1288 compliant and
 can be used independently of inetd(8).
 
 [EOB]
+
