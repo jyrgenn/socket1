@@ -289,6 +289,8 @@ int create_client_socket(char *bind_address, char *host, char *service,
 #endif /* NO_INET6 */
 }
 
+/** Make the TCP connection send a RST on hard close.
+ */
 void reset_socket_on_close(int sd)
 {
     struct linger linger ;

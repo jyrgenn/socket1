@@ -55,7 +55,7 @@ SWITCHES = $(GCCOPTS)
 ### Linux (Kernel 2.2.13, SuSE 6.2)
 #SWITCHES = $(GCCOPTS) -D_GNU_SOURCE
 
-### Solaris 7
+### Solaris
 #SWITCHES = -Dsys_siglist=_sys_siglist
 #SYSLIBS = -lnsl -lsocket
 
