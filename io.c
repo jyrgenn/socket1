@@ -139,7 +139,7 @@ int do_io(void)
     int ioret ;
 
     fdset_width = (IN > active_socket ? IN : active_socket) + 1 ;
-    while (1) {                 /* this loop is exited sideways */
+    while (running) {                 /* this loop is exited sideways */
         /* set up file descriptor set for select(2) */
         FD_ZERO(&readfds) ;
         if (!readonlyflag) {
