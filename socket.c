@@ -65,6 +65,7 @@ unsigned int timeout = 0 ;      /* timeout in seconds */
 char *progname ;                /* name of the game */
 char *pipe_program = NULL ;     /* program to execute in two-way pipe */
 char *bind_address = NULL ;     /* address to listen on */
+int running = 1;                /* non-zero while running, reset on SIGHUP */
 
 jmp_buf setjmp_env ;            /* buffer for return via longjmp() */
 int alarmsig_occured = 0 ;      /* non-zero after alarm signal */

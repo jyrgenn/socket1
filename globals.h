@@ -132,5 +132,6 @@ extern char *sys_siglist[] ;
 #endif /* HAS_NO_SYS_SIGLIST */
 extern jmp_buf setjmp_env ;
 extern int alarmsig_occured ;
+extern int running;
 
 /* EOF */

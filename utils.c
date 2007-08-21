@@ -94,6 +94,11 @@ void handle_sigalrm(int signal)
     errno = errno_save ;
 }
 
+void handle_sighup(int signal)
+{
+    running = 0;
+}
+
 void handle_sigint_sigterm(int signal)
 {
     write(2, "caught signal, resetting connection\n",
@@ -142,6 +147,7 @@ void init_sighandlers(void)
     if (resetflag) {
         init_sighandler(SIGINT, handle_sigint_sigterm) ;
         init_sighandler(SIGTERM, handle_sigint_sigterm) ;
+        init_sighandler(SIGHUP, handle_sighup) ;
     }
 }
 
