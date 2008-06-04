@@ -2,6 +2,8 @@
 
 Changes in Socket version 1.5
 
+  - exit gracefully on SIGHUP
+
   by Boris Nikolaus:
 
   - -H option for half-close support of TCP connections
