@@ -113,6 +113,7 @@ install: $(INSTALLBINPATH)/$(TARGET) installmanuals
 
 $(INSTALLBINPATH)/$(TARGET): $(ATARGET)
 	@-echo "installing $(ATARGET) in $(INSTALLBINPATH)"; \
+	mkdir -p $(INSTALLBINPATH); \
 	if [ -f $(INSTALLBINPATH)/$(TARGET) ] && \
 	   [ ! -w $(INSTALLBINPATH)/$(TARGET) ]; \
 	then \
@@ -126,6 +127,7 @@ installmanuals: $(MANUALS)
 	for i in $$_manuals; \
 	do \
 	  echo "installing $$i in $(INSTALLMANPATH)/man1"; \
+	mkdir -p $(INSTALLMANPATH)/man1; \
 	  if [ -f $(INSTALLMANPATH)/man1/$$i ] && \
 	     [ ! -w $(INSTALLMANPATH)/man1/$$i ]; \
 	  then \
@@ -139,5 +141,39 @@ clean:
 	rm -f $(ATARGET) $(ALIASES) $(OBJECTS) *~ core *.core
 
 $(OBJECTS) : $(HEADERS)
+
+PKG=JNIsock1
+ARCH=i386
+BASEDIR=/usr/local
+NAME=socket
+VERSION=1.5pre5
+DESC=Shell script interface to TCP sockets
+VENDOR=Juergen Nickelsen
+EMAIL=ni@jnickelsen.de
+PKGSAV=/var/sadm/pkg/JNIsock1/save
+CATEGORY=system,networking
+CLASSES=none
+PSTAMP=$$HOST/`isodate`
+
+PKGFILE=$(PKG)-$(ARCH).pkg
+
+pkg:
+	echo PKG=$(PKG) > pkginfo
+	echo ARCH=$(ARCH) >> pkginfo
+	echo BASEDIR=$(BASEDIR) >> pkginfo
+	echo NAME=$(NAME) >> pkginfo
+	echo VERSION=$(VERSION) >> pkginfo
+	echo DESC=$(DESC) >> pkginfo
+	echo VENDOR=$(VENDOR) >> pkginfo
+	echo EMAIL=$(EMAIL) >> pkginfo
+	echo PKGSAV=$(PKGSAV) >> pkginfo
+	echo CATEGORY=$(CATEGORY) >> pkginfo
+	echo CLASSES=$(CLASSES) >> pkginfo
+	echo PSTAMP=$(PSTAMP) >> pkginfo
+	pkgmk -o -d /tmp
+	touch $(PKGFILE)
+	pkgtrans -s /tmp $(PKGFILE) $(PKG)
+	rm -rf /tmp/$(PKG)
+
 
 #EOF
