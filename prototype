@@ -1,0 +1,6 @@
+i pkginfo
+d none bin 755 root root
+f none bin/socket=socket 755 root bin
+d none man 755 root root
+d none man/man1 755 root root
+f none man/man1/socket.1=socket.1 644 root bin
