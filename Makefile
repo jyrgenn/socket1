@@ -142,6 +142,7 @@ clean:
 
 $(OBJECTS) : $(HEADERS)
 
+# Ignore this unless you want to make a Solaris package.
 PKG=JNIsock1
 ARCH=i386
 BASEDIR=/usr/local
