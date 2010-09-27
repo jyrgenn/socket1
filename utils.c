@@ -238,7 +238,7 @@ void open_pipes(char *prog)
         /* reenable signal handler */
         init_sighandler(SIGPIPE, SIG_DFL) ;
         /* call program via sh */
-        execl("/bin/sh", "sh", "-c", prog, NULL) ;
+        execl("/bin/sh", "sh", "-c", prog, (void *) 0) ;
         perror2("exec /bin/sh") ;
         /* terminate parent silently */
         kill(getppid(), SIGUSR1) ;
@@ -268,7 +268,7 @@ int wait_for_children(void)
 #ifndef USE_WAITPID
     struct rusage rusage ;
 #endif
-    int retval ;
+    int retval = 0;
 
     errno_save = errno ;
 
