@@ -135,7 +135,7 @@ int do_io(void)
     fd_set readfds ;
     int fdset_width ;
     int selret ;
-    int retval ;
+    int retval = 0;
     int ioret ;
 
     fdset_width = (IN > active_socket ? IN : active_socket) + 1 ;
