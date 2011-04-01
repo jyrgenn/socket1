@@ -38,8 +38,8 @@ INSTALLBINMODE = 755
 INSTALLMANPATH = $(INSTALLBASE)/man
 INSTALLMANMODE = 444
 GCCOPTS = -Wall -Wstrict-prototypes
-CC = cc
-CFLAGS = $(SWITCHES) -g
+CC = /opt/csw/gcc4/bin/gcc $(GCCOPTS)
+CFLAGS = $(SWITCHES) -g -O3
 LDFLAGS = $(SWITCHES) # -s
 # To use an architecture-specific compile directory (inside of the
 # source directory):
@@ -50,14 +50,14 @@ ARCHDIR = .
 
 ### 4.4 BSD-derived systems (tested on FreeBSD, but probably works
 ### for other BSDs, including Mac OS X)
-SWITCHES = $(GCCOPTS)
+#SWITCHES = 
 
 ### Linux (Kernel 2.2.13, SuSE 6.2)
 #SWITCHES = $(GCCOPTS) -D_GNU_SOURCE
 
-### Solaris
-#SWITCHES = -Dsys_siglist=_sys_siglist
-#SYSLIBS = -lnsl -lsocket
+### (Open)Solaris (in between my main development platform)
+SWITCHES = -Dsys_siglist=_sys_siglist
+SYSLIBS = -lnsl -lsocket
 
 ### Interix, SFU 3.5
 #SWITCHES = $(GCCOPTS) -DHAS_NO_INTTYPES_H -DHAS_NO_SOCKLEN_T -DNO_INET6 \
