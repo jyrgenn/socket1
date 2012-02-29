@@ -38,8 +38,8 @@ INSTALLBINMODE = 755
 INSTALLMANPATH = $(INSTALLBASE)/man
 INSTALLMANMODE = 444
 GCCOPTS = -Wall -Wstrict-prototypes
-CC = /opt/csw/gcc4/bin/gcc $(GCCOPTS)
-CFLAGS = $(SWITCHES) -g -O3
+CC = cc
+CFLAGS = $(SWITCHES) -O
 LDFLAGS = $(SWITCHES) # -s
 # To use an architecture-specific compile directory (inside of the
 # source directory):
