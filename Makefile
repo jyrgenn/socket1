@@ -56,8 +56,8 @@ ARCHDIR = .
 #SWITCHES = $(GCCOPTS) -D_GNU_SOURCE
 
 ### (Open)Solaris (in between my main development platform)
-SWITCHES = -Dsys_siglist=_sys_siglist
-SYSLIBS = -lnsl -lsocket
+#SWITCHES = -Dsys_siglist=_sys_siglist
+#SYSLIBS = -lnsl -lsocket
 
 ### Interix, SFU 3.5
 #SWITCHES = $(GCCOPTS) -DHAS_NO_INTTYPES_H -DHAS_NO_SOCKLEN_T -DNO_INET6 \
