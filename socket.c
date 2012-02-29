@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
 int server(char *service)
 {
     int socket_handle ;
-    socklen_t sa_len ;
+    socklen_t soa_len ;
     char *host_name ;
     char *service_name ;
     char sa_buffer[256] ;
@@ -233,21 +233,21 @@ int server(char *service)
     int retval = 0 ;
 
     /* allocate server socket */
-    sa_len = sizeof(sa_buffer) ;
+    soa_len = sizeof(sa_buffer) ;
     if ((socket_handle = create_server_socket(bind_address, service, 1,
-                                              sa, &sa_len)) < 0) {
+                                              sa, &soa_len)) < 0) {
         return 1 ;
     }
     if (verboseflag) {
         fprintf(stderr, "listening on") ;
         if (bind_address != NULL) {
-            fprintf(stderr, " interface address %s", get_ipaddr(sa, sa_len)) ;
-            if ((host_name = get_hostname(sa, sa_len)) != NULL) {
+            fprintf(stderr, " interface address %s", get_ipaddr(sa, soa_len)) ;
+            if ((host_name = get_hostname(sa, soa_len)) != NULL) {
                 fprintf(stderr, " (%s)", host_name) ;
             }
         }
-        fprintf(stderr, " port %s", get_port(sa, sa_len)) ;
-        if ((service_name = get_service(sa, sa_len, "tcp")) != NULL) {
+        fprintf(stderr, " port %s", get_port(sa, soa_len)) ;
+        if ((service_name = get_service(sa, soa_len, "tcp")) != NULL) {
             fprintf(stderr, " (%s)", service_name) ;
         }
         fprintf(stderr, "\n") ;
@@ -257,8 +257,8 @@ int server(char *service)
     for (;;) {
 
         /* accept a connection */
-        sa_len = sizeof(sa_buffer) ;
-        if ((active_socket = accept(socket_handle, sa, &sa_len)) < 0) {
+        soa_len = sizeof(sa_buffer) ;
+        if ((active_socket = accept(socket_handle, sa, &soa_len)) < 0) {
             if (errno == ECONNABORTED)
                 continue ;
 #ifdef EPROTO
@@ -272,12 +272,12 @@ int server(char *service)
         } else {
             /* if verbose, get name of peer and give message */
             if (verboseflag) {
-                fprintf(stderr, "connection from %s", get_ipaddr(sa, sa_len)) ;
-                if ((host_name = get_hostname(sa, sa_len)) != NULL) {
+                fprintf(stderr, "connection from %s", get_ipaddr(sa, soa_len)) ;
+                if ((host_name = get_hostname(sa, soa_len)) != NULL) {
                     fprintf(stderr, " (%s)", host_name) ;
                 }
-                fprintf(stderr, " port %s", get_port(sa, sa_len)) ;
-                if ((service_name = get_service(sa, sa_len, "tcp")) != NULL) {
+                fprintf(stderr, " port %s", get_port(sa, soa_len)) ;
+                if ((service_name = get_service(sa, soa_len, "tcp")) != NULL) {
                     fprintf(stderr, " (%s)", service_name) ;
                 }
                 fprintf(stderr, "\n") ;
@@ -338,22 +338,22 @@ int client(char *host, char* service)
     char *service_name ;
     char sa_buffer[256] ;
     struct sockaddr *sa = (struct sockaddr *) sa_buffer ;
-    socklen_t sa_len ;
+    socklen_t soa_len ;
     int retval ;
 
     /* get connection */
-    sa_len = sizeof(sa_buffer) ;
+    soa_len = sizeof(sa_buffer) ;
     if ((active_socket = create_client_socket(bind_address, host, service,
-                                         sa, &sa_len)) < 0) {
+                                         sa, &soa_len)) < 0) {
         return 1 ;
     }
     if (verboseflag) {
-        fprintf(stderr, "connected to %s", get_ipaddr(sa, sa_len)) ;
-        if ((host_name = get_hostname(sa, sa_len)) != NULL) {
+        fprintf(stderr, "connected to %s", get_ipaddr(sa, soa_len)) ;
+        if ((host_name = get_hostname(sa, soa_len)) != NULL) {
             fprintf(stderr, " (%s)", host_name) ;
         }
-        fprintf(stderr, " port %s", get_port(sa, sa_len)) ;
-        if ((service_name = get_service(sa, sa_len, "tcp")) != NULL) {
+        fprintf(stderr, " port %s", get_port(sa, soa_len)) ;
+        if ((service_name = get_service(sa, soa_len, "tcp")) != NULL) {
             fprintf(stderr, " (%s)", service_name) ;
         }
         fprintf(stderr, "\n") ;
