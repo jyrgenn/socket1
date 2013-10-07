@@ -1,6 +1,6 @@
 /*-
  * Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005
- * Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
+ * Juergen Nickelsen <ni@w21.org>. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,7 +32,7 @@
 char *so_release (void)
 {
     static char release[] =
-        "\044Id: @(#)Socket-1.unreleased (2000-00-00 by ni@jnickelsen.de) $";
+        "\044Id: @(#)Socket-1.unreleased (2000-00-00 by ni@w21.org) $";
     char *s = strdup(strchr(release, 'S'));
     *(strrchr(s, '$') - 1) = 0;
     return s ;
