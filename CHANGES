@@ -1,5 +1,15 @@
 -*-text-*-
 
+Changes in Socket version 1.5p2
+
+  - updated author email address
+  - removed code for platforms without IPv6 support
+  - some minor cleanup
+
+Changes in Socket version 1.5p1
+
+  - works on IRIX (6.5) again
+
 Changes in Socket version 1.5
 
   - exit gracefully on SIGHUP
