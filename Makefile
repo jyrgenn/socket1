@@ -1,7 +1,7 @@
 # Makefile for Socket-1.5.
 #
 # Copyright (c) 1992, 1999, 2000, 2001, 2002, 2003, 2005, 2006
-# Juergen Nickelsen <ni@jnickelsen.de>. All rights reserved.
+# Juergen Nickelsen <ni@w21.org>. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
