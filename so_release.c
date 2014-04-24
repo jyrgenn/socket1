@@ -26,14 +26,19 @@
  *      $Id$
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include "globals.h"
+
+#define BUILD_TXT "\nbuild: " BUILD
 
 char *so_release (void)
 {
     static char release[] =
         "\044Id: @(#)Socket-1.unreleased (2000-00-00 by ni@w21.org) $";
-    char *s = strdup(strchr(release, 'S'));
-    *(strrchr(s, '$') - 1) = 0;
+    char *s = malloc(strlen(release) + strlen(BUILD_TXT) + 1);
+    strcpy(s, strchr(release, 'S'));
+    *strrchr(s, '$') = 0;
+    strcat(s, BUILD_TXT);
     return s ;
 }
