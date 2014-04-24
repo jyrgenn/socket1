@@ -1,0 +1,22 @@
+#!/bin/sh
+
+quiet=-v			# Per default be verbose
+opts=
+
+args=`getopt q46 $*`
+if [ $? != 0 ] ; then
+    echo 'Usage: mconnect [-q] [host [port]]'
+    exit 2
+fi
+
+set -- $args
+for i in "$@" ; do
+    case "$i" in
+	-q) quiet= ; shift;;
+	-[46]) opts="$opts $i"; shift;;
+	--) shift ; break;;
+    esac
+done
+
+set -x
+socket $quiet $opts -qc ${1-localhost} ${2-smtp}
