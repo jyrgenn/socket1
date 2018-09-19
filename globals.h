@@ -134,4 +134,8 @@ extern jmp_buf setjmp_env ;
 extern int alarmsig_occured ;
 extern int running;
 
+extern int ignore_ret;                  /* ignore syscall return value, but
+                                         * assign it to keep the compiler from
+                                         * moaning */
+
 /* EOF */

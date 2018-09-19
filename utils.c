@@ -47,6 +47,11 @@
 #include "globals.h"
 
 
+int ignore_ret;                         /* ignore syscall return value, but
+                                         * assign it to keep the compiler from
+                                         * moaning */
+
+
 /* Give usage message */
 void usage(void)
 {
@@ -86,8 +91,8 @@ void handle_sigalrm(int signal)
 
     errno_save = errno ;
     alarmsig_occured = 1 ;
-    write(2, "read timeout, closing connection\n",
-        sizeof("read timeout, closing connection\n") - 1) ;
+#define TIMEOUT_MESSAGE "read timeout, closing connection\n"
+    ignore_ret = write(2, TIMEOUT_MESSAGE, sizeof(TIMEOUT_MESSAGE) - 1) ;
     if (!serverflag || forkflag) {
         _exit(3) ;
     }
@@ -101,8 +106,8 @@ void handle_sighup(int signal)
 
 void handle_sigint_sigterm(int signal)
 {
-    write(2, "caught signal, resetting connection\n",
-        sizeof("caught signal, resetting connection\n") - 1) ;
+#define RESET_MESSAGE "caught signal, resetting connection\n"
+    ignore_ret = write(2, RESET_MESSAGE, sizeof(RESET_MESSAGE) - 1) ;
     reset_socket_on_close(active_socket) ;
     close(active_socket) ;
     _exit(4) ;
@@ -339,7 +344,7 @@ void background(void)
 #else
         setsid() ;
 #endif
-        chdir("/") ;
+        ignore_ret = chdir("/") ;
         if ((nulldev_fd = open(NULL_DEVICE, O_RDWR, 0)) != -1) {
             int i ;
 
