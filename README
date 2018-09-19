@@ -1,7 +1,7 @@
 Hey Emacs, this is -*- text -*-.
 
 
-README for Socket-1.5.
+README for Socket-1.5. Also see <https://git.w21.org/utils/socket1>
 
 For version 1.5, Boris Nikolaus has added three enhancements which
 are described in short here:

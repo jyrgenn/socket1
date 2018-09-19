@@ -1,5 +1,11 @@
 -*-text-*-
 
+Changes in Socket version 1.5p3
+
+  - updated years in COPYRIGHT file
+  - new example script mconnect
+  - silenced some compiler warnings
+
 Changes in Socket version 1.5p2
 
   - updated author email address

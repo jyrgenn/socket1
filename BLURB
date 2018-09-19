@@ -1,11 +1,13 @@
 This is release 1.5 of the Socket(1) program. This release is still
-derived from 1.1, while 2.0 emerges very slowly.
+derived from 1.1, while an attempt at a version 2 has been
+abandoned.
 
-Socket(1) implements an interface to TCP sockets at shell level.
-Client and server sockets can be used from shell scripts or
-interactively. Socket can also run a program with stdin, stdout, and
-stderr connected to the socket connection. A number of sample shell
-scripts is included. Socket-1.5 has been not tested thoroughly, but
-should run on some Linuxes (well, pick your favourite distribution
-and see if it runs), Solaris (10), and FreeBSD (5.x). It should be
-not too hard to port to similar platforms.
+Socket(1) implements an interface to TCP sockets at shell level,
+reading from stdin and writing to stdout. Client and server sockets
+can thus be used from shell scripts or interactively. Socket can
+also run a program with stdin, stdout, and stderr connected to the
+socket connection. A number of sample shell scripts is included.
+Socket-1.5 has been not tested thoroughly, but should run on some
+Linuxes (well, pick your favourite distribution and see if it runs),
+Solaris (10), and FreeBSD (5 and following). It should be not too
+hard to port to similar platforms.
