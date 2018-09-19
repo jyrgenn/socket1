@@ -39,7 +39,7 @@ INSTALLMANPATH = $(INSTALLBASE)/man
 INSTALLMANMODE = 444
 GCCOPTS = -Wall -Wstrict-prototypes
 CC = cc
-CFLAGS = $(SWITCHES) -O '-DBUILD="'$$USER@`hostname`' '`date +%Y%m%d:%H%M%S`'"'
+CFLAGS = $(SWITCHES) -O '-DBUILD="'$$USER@`hostname`' '`date +%Y%m%d:%H%M%S`' '"`uname -a`"'"'
 LDFLAGS = $(SWITCHES) # -s
 # To use an architecture-specific compile directory (inside of the
 # source directory):

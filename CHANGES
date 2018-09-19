@@ -4,6 +4,7 @@ Changes in Socket version 1.5p3
 
   - updated years in COPYRIGHT
   - new example script mconnect
+  - extended build info in binary
   - silenced some compiler warnings
 
 Changes in Socket version 1.5p2
