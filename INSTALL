@@ -14,3 +14,18 @@ may be difficult. I am interested in any changes you make to port the
 program to a new platform. Please send them back to me so I can merge
 them into a later release.
 
+
+Make a Release
+--------------
+
+  - Check in and tag; tag schema is "socket-1.<minor>p<patch#>" as
+    is the release name. Push.
+
+  - Copy everything to a $STAGEDIR.
+
+  - Edit so_release.c to reflect the release name and date.
+
+  - Build and install with "make install INSTALLBASE=$INSTALLBASE".
+
+  - Copy a tarball to https://w21.org/jnickelsen/socket/ and edit
+    the index to point to it.
